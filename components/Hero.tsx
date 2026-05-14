@@ -24,7 +24,7 @@ export default function Hero() {
         </div>
 
         <div className="flex flex-wrap gap-3 mb-7">
-          <PrimaryCta href="#install">install</PrimaryCta>
+          <PrimaryCta href="#integrations">install</PrimaryCta>
           <SecondaryCta href="#what-it-does">how it works</SecondaryCta>
         </div>
 
