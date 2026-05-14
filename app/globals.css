@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Default = dark. Overridden by .dark or no class via the layout's
+   FOUC-safe inline script (sets `.dark` class on <html>). */
+:root,
+.dark {
+  --bg-0: #0d0c0a;
+  --bg-1: #16140f;
+  --bg-2: #1f1c16;
+  --bg-3: #2a261e;
+  --divider: #3a342a;
+  --fg-0: #f3efe7;
+  --fg-1: #b5ad9e;
+  --fg-2: #7a7263;
+  --fg-3: #4d473d;
+  color-scheme: dark;
+}
+
+.light {
+  --bg-0: #fdfbf7;
+  --bg-1: #f5f1ea;
+  --bg-2: #ece6d8;
+  --bg-3: #e0d8c5;
+  --divider: #d4cab4;
+  --fg-0: #1a1814;
+  --fg-1: #5a5246;
+  --fg-2: #8b8273;
+  --fg-3: #b8af9e;
+  color-scheme: light;
+}
+
+html,
+body {
+  background: var(--bg-0);
+  color: var(--fg-0);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(109, 40, 217, 0.25);
+  color: var(--fg-0);
+}
+
+/* Typography helpers — variable-axis Fraunces */
+.wordmark {
+  font-family: var(--font-serif), serif;
+  font-weight: 600;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+  letter-spacing: -0.045em;
+  line-height: 0.9;
+}
+
+.tagline {
+  font-family: var(--font-serif), serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 40, "SOFT" 30;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.card-title {
+  font-family: var(--font-serif), serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 24, "SOFT" 30;
+  line-height: 1.2;
+}
+
+.stat {
+  font-family: var(--font-serif), serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 72, "SOFT" 30;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.wordmark-small {
+  font-family: var(--font-serif), serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 36, "SOFT" 30;
+}
+
+.quote-serif {
+  font-family: var(--font-serif), serif;
+  font-style: italic;
+  font-weight: 500;
+  font-variation-settings: "opsz" 40, "SOFT" 50;
+  line-height: 1.35;
+}
