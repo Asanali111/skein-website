@@ -1,4 +1,4 @@
-import InstallBox from "./InstallBox";
+import InstallTabs from "./InstallTabs";
 import { PrimaryCta, SecondaryCta } from "./Cta";
 import { StatusDot, VersionBadge } from "./Badges";
 
@@ -20,7 +20,7 @@ export default function Hero() {
         </p>
 
         <div className="mb-7">
-          <InstallBox command="pip install skein && skein up" />
+          <InstallTabs />
         </div>
 
         <div className="flex flex-wrap gap-3 mb-7">

@@ -80,7 +80,7 @@ export default async function IntegrationPage({
           <div className="mt-3 max-w-[44rem] text-sm text-fg-1 leading-[1.6]">
             <p>Install the daemon first:</p>
             <div className="mt-2 overflow-x-auto">
-              <InstallBox command="pip install skein && skein up" />
+              <InstallBox command="pip install skn && skein up" />
             </div>
             <p className="mt-2 text-fg-2 text-[0.8125rem]">
               The daemon binds to <code className="font-mono text-fg-0">127.0.0.1:8765</code> and
