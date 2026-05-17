@@ -5,6 +5,7 @@ import ClientsGallery from "@/components/ClientsGallery";
 import Dogfood from "@/components/Dogfood";
 import Footer from "@/components/Footer";
 import SectionStrip from "@/components/SectionStrip";
+import Reveal from "@/components/Reveal";
 
 export default function Page() {
   return (
@@ -12,11 +13,17 @@ export default function Page() {
       <TopNav />
       <Hero />
       <SectionStrip label="what it does" />
-      <WhatItDoes />
+      <Reveal>
+        <WhatItDoes />
+      </Reveal>
       <SectionStrip label="works with" />
-      <ClientsGallery />
-      <SectionStrip label="dogfood · iter 18" />
-      <Dogfood />
+      <Reveal delay={60}>
+        <ClientsGallery />
+      </Reveal>
+      <SectionStrip label="dogfood · may 2026" />
+      <Reveal delay={60}>
+        <Dogfood />
+      </Reveal>
       <Footer />
     </main>
   );
