@@ -104,7 +104,7 @@ export default function LiveTerminal() {
     <div
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      className="relative bg-bg-3 border-l-2 border-primary rounded-[4px] mt-4 font-mono text-[0.78rem] leading-[1.6] text-fg-1 overflow-hidden"
+      className="pixel-corner-lg relative bg-bg-3 border-l-2 border-primary mt-4 font-mono text-[0.78rem] leading-[1.6] text-fg-1 overflow-hidden"
     >
       <div className="flex items-center justify-between px-3 py-1.5 border-b border-divider/60 bg-bg-2">
         <div className="flex items-center gap-1.5">

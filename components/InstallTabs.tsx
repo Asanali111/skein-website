@@ -102,7 +102,7 @@ export default function InstallTabs({ className = "" }: Props) {
       {/* Command block */}
       <div
         className={[
-          "flex items-center gap-5 bg-bg-3 border-l-[3px] border-primary rounded-md rounded-tl-none font-mono text-[0.9375rem] text-fg-0 px-[1.125rem] py-[0.875rem]",
+          "pixel-corner-sm flex items-center gap-5 bg-bg-3 border-l-[3px] border-primary font-mono text-[0.9375rem] text-fg-0 px-[1.125rem] py-[0.875rem]",
           active.disabled ? "opacity-60" : "",
         ].join(" ")}
       >

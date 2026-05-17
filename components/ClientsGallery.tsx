@@ -60,7 +60,7 @@ export default function ClientsGallery() {
                         <div className="font-mono text-[0.625rem] tracking-[0.12em] uppercase text-fg-3 mb-2">
                           one-line install
                         </div>
-                        <div className="flex items-center gap-3 bg-bg-3 border-l-2 border-primary rounded-md font-mono text-[0.8125rem] text-fg-0 px-3 py-2.5">
+                        <div className="pixel-corner-sm flex items-center gap-3 bg-bg-3 border-l-2 border-primary font-mono text-[0.8125rem] text-fg-0 px-3 py-2.5">
                           <code className="flex-1 break-all">$ {cmd}</code>
                           <button
                             type="button"
