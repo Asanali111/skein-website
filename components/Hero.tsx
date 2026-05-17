@@ -1,12 +1,12 @@
 import InstallTabs from "./InstallTabs";
 import { SecondaryCta } from "./Cta";
 import { VersionBadge } from "./Badges";
-import ThreadDiagram from "./ThreadDiagram";
+import PixelLoom from "./PixelLoom";
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden">
-      <ThreadDiagram />
+    <section className="relative overflow-hidden hero-pattern">
+      <PixelLoom />
       <div className="max-w-content mx-auto px-8 sm:px-12 pt-16 pb-14 sm:pt-20 relative">
         <h1 className="wordmark text-[3.5rem] sm:text-[4.5rem] md:text-wordmark text-fg-0 mb-7">
           skein
