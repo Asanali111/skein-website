@@ -37,81 +37,112 @@ const FG = [243, 239, 231];       // #f3efe7
 const FG_DIM = [122, 114, 99];    // #7a7263
 
 // ─────────────────────────────────────────────────────────────
-// 9×9 agent logo sprites. `#` = bright (FG), `$` = thread hue.
-// Logo center is (4, 4) within each grid.
+// 13×13 agent logo sprites. `#` = bright (FG), `$` = thread hue.
+// Logo center is (6, 6) within each grid.
+//
+// Designed as pixel-art interpretations evoking each brand's
+// visual-identity language (not pixelations of their official
+// marks): Claude Code = starburst / sunburst spark; Cursor =
+// pointer arrow; Codex = hex outline (geometric algorithmic);
+// Gemini CLI = 4-pointed gem; Antigravity = up-arrow;
+// opencode = TUI brackets.
 // ─────────────────────────────────────────────────────────────
 const LOGOS: Record<string, string[]> = {
-  // Claude Code — 4-pointed sun with diagonal rays
+  // Claude Code — 4-rayed compass-star (Anthropic spark feel)
   "claude-code": [
-    "....#....",
-    "....#....",
-    "..#.#.#..",
-    "...###...",
-    "##.###.##",
-    "...###...",
-    "..#.#.#..",
-    "....#....",
-    "....#....",
+    ".............",
+    ".............",
+    "......#......",
+    "......#......",
+    ".....###.....",
+    "....#####....",
+    "#############",
+    "....#####....",
+    ".....###.....",
+    "......#......",
+    "......#......",
+    ".............",
+    ".............",
   ],
-  // Cursor — classic mouse-arrow cursor with tail
+  // Cursor — classic mouse pointer with tail
   "cursor": [
-    "#........",
-    "##.......",
-    "###......",
-    "####.....",
-    "#####....",
-    "######...",
-    "##.##....",
-    "#...##...",
-    ".....##..",
+    "#............",
+    "##...........",
+    "###..........",
+    "####.........",
+    "#####........",
+    "######.......",
+    "#######......",
+    "########.....",
+    "#####........",
+    "##.##........",
+    ".#..##.......",
+    ".....##......",
+    "......##.....",
   ],
-  // Codex — hexagon outline with center dot
+  // Codex — hexagonal outline (algorithmic / OpenAI-shaped)
   "codex": [
-    "...###...",
-    "..#...#..",
-    ".#.....#.",
-    "#.......#",
-    "#...#...#",
-    "#.......#",
-    ".#.....#.",
-    "..#...#..",
-    "...###...",
+    ".............",
+    "....######...",
+    "...#......#..",
+    "..#........#.",
+    ".#..........#",
+    ".#..........#",
+    ".#..........#",
+    ".#..........#",
+    ".#..........#",
+    "..#........#.",
+    "...#......#..",
+    "....######...",
+    ".............",
   ],
-  // Gemini CLI — diamond/gem
+  // Gemini CLI — 4-pointed gem (sparkle)
   "gemini-cli": [
-    "....#....",
-    "...###...",
-    "..#####..",
-    ".#######.",
-    "#########",
-    ".#######.",
-    "..#####..",
-    "...###...",
-    "....#....",
+    "......#......",
+    ".....###.....",
+    "....#####....",
+    "...#######...",
+    "..#########..",
+    ".###########.",
+    "#############",
+    ".###########.",
+    "..#########..",
+    "...#######...",
+    "....#####....",
+    ".....###.....",
+    "......#......",
   ],
-  // Antigravity — up-arrow (rocket)
+  // Antigravity — up-arrow chevron (rising motion)
   "antigravity": [
-    "....#....",
-    "...###...",
-    "..#####..",
-    ".##.#.##.",
-    "#...#...#",
-    "....#....",
-    "....#....",
-    "....#....",
-    "....#....",
+    ".............",
+    "......#......",
+    ".....###.....",
+    "....#####....",
+    "...#######...",
+    "..#########..",
+    ".###########.",
+    "......#......",
+    "......#......",
+    "......#......",
+    "......#......",
+    "......#......",
+    "......#......",
   ],
-  // opencode — [ . ] bracket pair with center dots
+  // opencode — bracket pair with cursor-bars inside (TUI feel)
   "opencode": [
-    "###...###",
-    "#.......#",
-    "#.......#",
-    "#...#...#",
-    "#..###..#",
-    "#...#...#",
-    "#.......#",
-    "#.......#",
-    "###...###",
+    "####.....####",
+    "#...........#",
+    "#...........#",
+    "#...........#",
+    "#....#.#....#",
+    "#....#.#....#",
+    "#....#.#....#",
+    "#....#.#....#",
+    "#....#.#....#",
+    "#...........#",
+    "#...........#",
+    "#...........#",
+    "####.....####",
   ],
 };
 
@@ -124,8 +155,9 @@ const LOGOS: Record<string, string[]> = {
 // LEFT side of the logo at (LOGO_CX - 5, y) and bends through
 // the polyline until it reaches the skein at (CX, CY).
 // ─────────────────────────────────────────────────────────────
-const LOGO_CX = 142;
-const TRACE_START_X = LOGO_CX - 5; // 137 — just outside logo's left edge
+const LOGO_CX = 150;
+const LOGO_HALF = 6;                 // 13×13 sprite, center at (6, 6)
+const TRACE_START_X = LOGO_CX - LOGO_HALF - 1; // 143 — just outside logo's left edge
 
 type Thread = {
   id: string;
@@ -302,13 +334,15 @@ function drawJunctions(ctx: CanvasRenderingContext2D, trace: Trace, hue: number[
 }
 
 function drawLogo(ctx: CanvasRenderingContext2D, sprite: string[], cx: number, cy: number, hue: number[]) {
-  const ox = cx - 4;
-  const oy = cy - 4;
-  for (let r = 0; r < 9; r++) {
+  const SZ = 13;
+  const ox = cx - LOGO_HALF;
+  const oy = cy - LOGO_HALF;
+  for (let r = 0; r < SZ; r++) {
     const row = sprite[r];
-    for (let c = 0; c < 9; c++) {
+    if (!row) continue;
+    for (let c = 0; c < SZ; c++) {
       const ch = row[c];
-      if (ch === ".") continue;
+      if (ch === "." || ch === undefined) continue;
       ctx.fillStyle = ch === "$" ? rgb(hue) : rgb(FG);
       ctx.fillRect(ox + c, oy + r, 1, 1);
     }
