@@ -10,23 +10,24 @@ import { useEffect, useRef } from "react";
  * 4-6px on-screen block. Single requestAnimationFrame loop, no React
  * state updates per frame, no SVG filters, no backdrop-blur.
  *
- * Composition: a central pixel "skein" (yarn ball) sprite. Six threads
- * enter from the right edge — one per supported LLM — each animating as
- * a head-pixel that travels left along a precomputed sinusoidal path
- * leaving a trail. When a head reaches the skein, it merges and a new
- * head spawns at the source. Threads loop indefinitely on stagger.
- *
- * The right-half label layer is rendered as plain HTML (no blur, just
- * a divider border) for crisp readability over the pixel grid.
+ * Composition (iter 26):
+ *   - 6 agent logos (9×9 pixel-art sprites) sit at the right edge.
+ *   - From each logo, an orthogonal "circuit trace" routes to the
+ *     central pixel-art skein sprite. Right-angle elbows only — no waves.
+ *   - Static traces are dim (always visible, like PCB ink).
+ *   - Junction dots at every elbow.
+ *   - Bright "pulse" pixels travel along each trace at staggered cadence,
+ *     fading in at the source and fading out at the skein — data packets
+ *     arriving in the memory bus.
+ *   - The 11×11 skein sprite at the center rotates its yarn loops on
+ *     a 4-frame cycle.
  */
 
-// Logical render size — small on purpose so each unit becomes a "pixel"
 const W = 160;
 const H = 120;
 
-// Skein center (in logical pixels)
 const CX = 56;
-const CY = H / 2;
+const CY = 60;
 
 const PRIMARY = [109, 40, 217];   // #6d28d9
 const PRIMARY_HI = [167, 139, 250]; // #a78bfa
@@ -35,26 +36,174 @@ const CYAN = [15, 211, 211];      // #0FD3D3 — one accent thread for variety
 const FG = [243, 239, 231];       // #f3efe7
 const FG_DIM = [122, 114, 99];    // #7a7263
 
-const THREADS = [
-  { id: "claude",   label: "Claude Code", y: 16,  hue: PRIMARY_HI },
-  { id: "cursor",   label: "Cursor",      y: 32,  hue: FG },
-  { id: "codex",    label: "Codex",       y: 50,  hue: CYAN },
-  { id: "gemini",   label: "Gemini CLI",  y: 70,  hue: SPARK },
-  { id: "antigrav", label: "Antigravity", y: 88,  hue: PRIMARY_HI },
-  { id: "opencode", label: "opencode",    y: 104, hue: FG_DIM },
+// ─────────────────────────────────────────────────────────────
+// 9×9 agent logo sprites. `#` = bright (FG), `$` = thread hue.
+// Logo center is (4, 4) within each grid.
+// ─────────────────────────────────────────────────────────────
+const LOGOS: Record<string, string[]> = {
+  // Claude Code — 4-pointed sun with diagonal rays
+  "claude-code": [
+    "....#....",
+    "....#....",
+    "..#.#.#..",
+    "...###...",
+    "##.###.##",
+    "...###...",
+    "..#.#.#..",
+    "....#....",
+    "....#....",
+  ],
+  // Cursor — classic mouse-arrow cursor with tail
+  "cursor": [
+    "#........",
+    "##.......",
+    "###......",
+    "####.....",
+    "#####....",
+    "######...",
+    "##.##....",
+    "#...##...",
+    ".....##..",
+  ],
+  // Codex — hexagon outline with center dot
+  "codex": [
+    "...###...",
+    "..#...#..",
+    ".#.....#.",
+    "#.......#",
+    "#...#...#",
+    "#.......#",
+    ".#.....#.",
+    "..#...#..",
+    "...###...",
+  ],
+  // Gemini CLI — diamond/gem
+  "gemini-cli": [
+    "....#....",
+    "...###...",
+    "..#####..",
+    ".#######.",
+    "#########",
+    ".#######.",
+    "..#####..",
+    "...###...",
+    "....#....",
+  ],
+  // Antigravity — up-arrow (rocket)
+  "antigravity": [
+    "....#....",
+    "...###...",
+    "..#####..",
+    ".##.#.##.",
+    "#...#...#",
+    "....#....",
+    "....#....",
+    "....#....",
+    "....#....",
+  ],
+  // opencode — [ . ] bracket pair with center dots
+  "opencode": [
+    "###...###",
+    "#.......#",
+    "#.......#",
+    "#...#...#",
+    "#..###..#",
+    "#...#...#",
+    "#.......#",
+    "#.......#",
+    "###...###",
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────
+// 6 threads. Each declares its agent id, hue, logo center y, and
+// the polyline route from the logo to the skein. Routes are
+// strictly orthogonal — every elbow is a 90° turn.
+//
+// The logo is centered at (LOGO_CX, y). The trace leaves the
+// LEFT side of the logo at (LOGO_CX - 5, y) and bends through
+// the polyline until it reaches the skein at (CX, CY).
+// ─────────────────────────────────────────────────────────────
+const LOGO_CX = 142;
+const TRACE_START_X = LOGO_CX - 5; // 137 — just outside logo's left edge
+
+type Thread = {
+  id: string;
+  hue: number[];
+  y: number;
+  route: [number, number][];
+};
+
+const THREADS: Thread[] = [
+  {
+    id: "claude-code",
+    hue: PRIMARY_HI,
+    y: 12,
+    route: [[TRACE_START_X, 12], [110, 12], [110, 60], [CX, 60]],
+  },
+  {
+    id: "cursor",
+    hue: FG,
+    y: 30,
+    route: [[TRACE_START_X, 30], [95, 30], [95, 60], [CX, 60]],
+  },
+  {
+    id: "codex",
+    hue: CYAN,
+    y: 48,
+    route: [[TRACE_START_X, 48], [78, 48], [78, 60], [CX, 60]],
+  },
+  {
+    id: "gemini-cli",
+    hue: SPARK,
+    y: 72,
+    route: [[TRACE_START_X, 72], [78, 72], [78, 60], [CX, 60]],
+  },
+  {
+    id: "antigravity",
+    hue: PRIMARY_HI,
+    y: 90,
+    route: [[TRACE_START_X, 90], [95, 90], [95, 60], [CX, 60]],
+  },
+  {
+    id: "opencode",
+    hue: FG_DIM,
+    y: 108,
+    route: [[TRACE_START_X, 108], [110, 108], [110, 60], [CX, 60]],
+  },
 ];
 
-const SOURCE_X = W - 4;     // threads start from the right edge
-const TRAIL_LEN = 38;       // trailing pixels per thread head
-const SPEED = 0.55;         // pixels per frame
-const STAGGER = 0.18;       // phase offset between threads (0..1)
+// Pre-compute each route's pixel positions + total length once.
+type Trace = { pixels: [number, number][]; elbows: [number, number][] };
 
-type Phase = { t: number };
+function walkRoute(route: [number, number][]): Trace {
+  const pixels: [number, number][] = [];
+  const elbows: [number, number][] = [];
+  for (let i = 0; i < route.length - 1; i++) {
+    const [x1, y1] = route[i];
+    const [x2, y2] = route[i + 1];
+    if (i > 0) elbows.push([x1, y1]); // each interior route point is an elbow
+    const dx = Math.sign(x2 - x1);
+    const dy = Math.sign(y2 - y1);
+    let x = x1;
+    let y = y1;
+    // Walk inclusive of x1, exclusive of x2 to avoid double-painting elbows
+    while (x !== x2 || y !== y2) {
+      pixels.push([x, y]);
+      x += dx;
+      y += dy;
+    }
+  }
+  pixels.push(route[route.length - 1]); // final point (the skein junction)
+  return { pixels, elbows };
+}
 
-// Clean 11×11 skein sprite. Outer ring = FG (bright), shell = PRIMARY_HI,
-// inner = PRIMARY, the "yarn loops" inside rotate across 4 frames so the
-// ball appears to spin slowly. Designed so the silhouette is the same
-// across all frames — only the loops shift.
+const TRACES: Trace[] = THREADS.map((t) => walkRoute(t.route));
+
+// ─────────────────────────────────────────────────────────────
+// Skein sprite (11×11). Outer ring = FG bright, shell = PRIMARY_HI,
+// inner loops = PRIMARY (rotating across 4 frames).
+// ─────────────────────────────────────────────────────────────
 const SKEIN_BASE = [
   "...#####...",
   ".##$$$$$##.",
@@ -69,8 +218,6 @@ const SKEIN_BASE = [
   "...#####...",
 ];
 
-// Yarn-loop overlays — coords (relative to top-left of 11×11) painted as `%`
-// to read as the darker inner thread. Four phases for a clockwise spin.
 const SKEIN_LOOPS: [number, number][][] = [
   [[3,3],[4,3],[5,3],[6,3],[7,3], [3,7],[4,7],[5,7],[6,7],[7,7], [3,4],[3,5],[3,6], [7,4],[7,5],[7,6]],
   [[4,2],[5,2],[6,2], [4,8],[5,8],[6,8], [2,4],[2,5],[2,6], [8,4],[8,5],[8,6], [3,3],[7,3],[3,7],[7,7]],
@@ -78,43 +225,6 @@ const SKEIN_LOOPS: [number, number][][] = [
   [[4,2],[5,2],[6,2], [4,8],[5,8],[6,8], [2,4],[2,5],[2,6], [8,4],[8,5],[8,6], [3,3],[7,3],[3,7],[7,7]].map(([x,y])=>[y,x]) as [number,number][],
 ];
 
-function drawSkein(ctx: CanvasRenderingContext2D, frame: number) {
-  // Halo first so the sprite draws on top.
-  const halo = (Math.sin(frame * 0.06) + 1) * 0.5; // 0..1
-  ctx.fillStyle = `rgba(167,139,250,${(0.18 + halo * 0.22).toFixed(3)})`;
-  for (const [dx, dy] of HALO_PIXELS) ctx.fillRect(CX + dx, CY + dy, 1, 1);
-
-  const SZ = 11;
-  const ox = CX - 5;
-  const oy = CY - 5;
-
-  // Base shell
-  for (let r = 0; r < SZ; r++) {
-    const row = SKEIN_BASE[r];
-    for (let c = 0; c < SZ; c++) {
-      const ch = row[c];
-      if (ch === ".") continue;
-      ctx.fillStyle = rgb(ch === "#" ? FG : PRIMARY_HI);
-      ctx.fillRect(ox + c, oy + r, 1, 1);
-    }
-  }
-
-  // Yarn loops (rotating)
-  const phase = Math.floor(frame / 18) % 4;
-  ctx.fillStyle = rgb(PRIMARY);
-  for (const [cx, cy] of SKEIN_LOOPS[phase]) {
-    ctx.fillRect(ox + cx, oy + cy, 1, 1);
-  }
-
-  // Tiny highlight pixel — single bright dot drifts around the ball
-  const hlPhase = (frame * 0.08) % (Math.PI * 2);
-  const hx = CX + Math.round(Math.cos(hlPhase) * 3);
-  const hy = CY + Math.round(Math.sin(hlPhase) * 3);
-  ctx.fillStyle = rgb(FG);
-  ctx.fillRect(hx, hy, 1, 1);
-}
-
-// Pre-compute halo positions once (diamond ring around the 11×11 skein sprite)
 const HALO_PIXELS: [number, number][] = (() => {
   const out: [number, number][] = [];
   for (let r = 0; r < H; r++) {
@@ -130,58 +240,117 @@ const HALO_PIXELS: [number, number][] = (() => {
   return out;
 })();
 
-function threadPath(yBase: number, x: number, phase: number): number {
-  // Sinusoidal wobble that flattens as we approach the skein.
-  const t = (SOURCE_X - x) / (SOURCE_X - CX);
-  const damp = 1 - t * 0.85;
-  const wobble = Math.sin((x * 0.18) + phase * Math.PI * 2) * 5 * damp;
-  // Drift toward CY as t→1
-  const drift = (CY - yBase) * t * t;
-  return yBase + drift + wobble;
-}
+function drawSkein(ctx: CanvasRenderingContext2D, frame: number) {
+  const halo = (Math.sin(frame * 0.06) + 1) * 0.5;
+  ctx.fillStyle = `rgba(167,139,250,${(0.18 + halo * 0.22).toFixed(3)})`;
+  for (const [dx, dy] of HALO_PIXELS) ctx.fillRect(CX + dx, CY + dy, 1, 1);
 
-function drawThread(
-  ctx: CanvasRenderingContext2D,
-  yBase: number,
-  hue: number[],
-  phase: Phase,
-  staticPhase: number
-) {
-  // The head pixel position along the path, in logical pixels (0..1 progress).
-  const span = SOURCE_X - CX;
-  const headX = SOURCE_X - phase.t * span;
-  if (headX <= CX) return; // arrived; will respawn
+  const SZ = 11;
+  const ox = CX - 5;
+  const oy = CY - 5;
 
-  // Trail of pixels behind the head, fading + dithered.
-  for (let i = 0; i < TRAIL_LEN; i++) {
-    const x = headX + i * 0.85;
-    if (x > SOURCE_X) break;
-    const y = Math.round(threadPath(yBase, x, staticPhase));
-
-    // Fade with distance from head + dither (skip alternating pixels deeper in tail)
-    const fade = 1 - i / TRAIL_LEN;
-    if (i > 4 && (i & 1) === ((Math.round(x) & 1))) continue;
-
-    const a = Math.max(0.05, fade * fade);
-    ctx.fillStyle = `rgba(${hue[0]},${hue[1]},${hue[2]},${a.toFixed(3)})`;
-    ctx.fillRect(Math.round(x), y, 1, 1);
+  for (let r = 0; r < SZ; r++) {
+    const row = SKEIN_BASE[r];
+    for (let c = 0; c < SZ; c++) {
+      const ch = row[c];
+      if (ch === ".") continue;
+      ctx.fillStyle = rgb(ch === "#" ? FG : PRIMARY_HI);
+      ctx.fillRect(ox + c, oy + r, 1, 1);
+    }
   }
 
-  // Head pixel — bright
-  const hy = Math.round(threadPath(yBase, headX, staticPhase));
+  const phase = Math.floor(frame / 18) % 4;
+  ctx.fillStyle = rgb(PRIMARY);
+  for (const [cx, cy] of SKEIN_LOOPS[phase]) {
+    ctx.fillRect(ox + cx, oy + cy, 1, 1);
+  }
+
+  // Orbiting highlight
+  const hlPhase = (frame * 0.08) % (Math.PI * 2);
+  const hx = CX + Math.round(Math.cos(hlPhase) * 3);
+  const hy = CY + Math.round(Math.sin(hlPhase) * 3);
   ctx.fillStyle = rgb(FG);
-  ctx.fillRect(Math.round(headX), hy, 1, 1);
-  // Subtle plus-shape around head
-  ctx.fillStyle = `rgba(${hue[0]},${hue[1]},${hue[2]},0.7)`;
-  ctx.fillRect(Math.round(headX) - 1, hy, 1, 1);
-  ctx.fillRect(Math.round(headX), hy - 1, 1, 1);
-  ctx.fillRect(Math.round(headX), hy + 1, 1, 1);
+  ctx.fillRect(hx, hy, 1, 1);
 }
 
+// ─────────────────────────────────────────────────────────────
+// Drawing primitives
+// ─────────────────────────────────────────────────────────────
 function rgb(c: number[]) {
   return `rgb(${c[0]},${c[1]},${c[2]})`;
 }
+function rgba(c: number[], a: number) {
+  return `rgba(${c[0]},${c[1]},${c[2]},${a.toFixed(3)})`;
+}
 
+function drawTrace(ctx: CanvasRenderingContext2D, trace: Trace, hue: number[]) {
+  // Static circuit trace — dim pixels along the whole polyline.
+  ctx.fillStyle = rgba(hue, 0.22);
+  for (const [x, y] of trace.pixels) ctx.fillRect(x, y, 1, 1);
+}
+
+function drawJunctions(ctx: CanvasRenderingContext2D, trace: Trace, hue: number[]) {
+  // Slightly brighter dot at each elbow + a small ⊕ tick to read as a node.
+  ctx.fillStyle = rgba(hue, 0.7);
+  for (const [x, y] of trace.elbows) {
+    ctx.fillRect(x, y, 1, 1);
+    ctx.fillRect(x - 1, y, 1, 1);
+    ctx.fillRect(x + 1, y, 1, 1);
+    ctx.fillRect(x, y - 1, 1, 1);
+    ctx.fillRect(x, y + 1, 1, 1);
+  }
+}
+
+function drawLogo(ctx: CanvasRenderingContext2D, sprite: string[], cx: number, cy: number, hue: number[]) {
+  const ox = cx - 4;
+  const oy = cy - 4;
+  for (let r = 0; r < 9; r++) {
+    const row = sprite[r];
+    for (let c = 0; c < 9; c++) {
+      const ch = row[c];
+      if (ch === ".") continue;
+      ctx.fillStyle = ch === "$" ? rgb(hue) : rgb(FG);
+      ctx.fillRect(ox + c, oy + r, 1, 1);
+    }
+  }
+}
+
+function drawPulse(
+  ctx: CanvasRenderingContext2D,
+  trace: Trace,
+  hue: number[],
+  t: number /* 0..1 along polyline */
+) {
+  const len = trace.pixels.length;
+  if (len === 0) return;
+  const headIdx = Math.min(len - 1, Math.floor(t * len));
+
+  // Pulse trail: brighter pixels at head, dimmer behind.
+  const TRAIL = 6;
+  for (let i = 0; i < TRAIL; i++) {
+    const idx = headIdx - i;
+    if (idx < 0) break;
+    const [x, y] = trace.pixels[idx];
+    if (i === 0) {
+      // Head: bright FG center pixel with hue plus-shape
+      ctx.fillStyle = rgb(FG);
+      ctx.fillRect(x, y, 1, 1);
+      ctx.fillStyle = rgba(hue, 0.85);
+      ctx.fillRect(x - 1, y, 1, 1);
+      ctx.fillRect(x + 1, y, 1, 1);
+      ctx.fillRect(x, y - 1, 1, 1);
+      ctx.fillRect(x, y + 1, 1, 1);
+    } else {
+      const a = (1 - i / TRAIL) * 0.85;
+      ctx.fillStyle = rgba(hue, a);
+      ctx.fillRect(x, y, 1, 1);
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Component
+// ─────────────────────────────────────────────────────────────
 export default function PixelLoom() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -192,7 +361,6 @@ export default function PixelLoom() {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    // Honor reduced motion: paint one static frame and bail.
     const reduceMotion = typeof window !== "undefined"
       && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
@@ -200,10 +368,10 @@ export default function PixelLoom() {
     canvas.height = H;
     ctx.imageSmoothingEnabled = false;
 
-    // Per-thread cycle phase (0..1, wraps).
-    const phases: Phase[] = THREADS.map((_, i) => ({ t: (i * STAGGER) % 1 }));
-    // Static phase per thread for the sinusoidal wobble — keeps wobble stable per thread.
-    const staticPhases = THREADS.map((_, i) => i * 0.31);
+    // Per-thread pulse progress 0..1, staggered so all 6 don't pulse in lockstep.
+    const STAGGER = 0.18;
+    const phases: number[] = THREADS.map((_, i) => (i * STAGGER) % 1);
+    const SPEED = 0.0085; // progress per 60fps frame
 
     let frame = 0;
     let last = performance.now();
@@ -213,18 +381,33 @@ export default function PixelLoom() {
       last = now;
       frame += 1;
 
-      // Clear (don't trail — we paint the trail explicitly)
       ctx.clearRect(0, 0, W, H);
 
-      // Threads first so the skein draws on top
+      // 1. Static circuit traces (dim, like printed PCB ink)
       for (let i = 0; i < THREADS.length; i++) {
-        const p = phases[i];
-        p.t += (SPEED * (dt / 16.67)) / (SOURCE_X - CX);
-        if (p.t >= 1) p.t = 0; // respawn from source
-        drawThread(ctx, THREADS[i].y, THREADS[i].hue, p, staticPhases[i]);
+        drawTrace(ctx, TRACES[i], THREADS[i].hue);
       }
 
+      // 2. Junction dots at elbows
+      for (let i = 0; i < THREADS.length; i++) {
+        drawJunctions(ctx, TRACES[i], THREADS[i].hue);
+      }
+
+      // 3. Agent logos at the right edge
+      for (let i = 0; i < THREADS.length; i++) {
+        const t = THREADS[i];
+        drawLogo(ctx, LOGOS[t.id], LOGO_CX, t.y, t.hue);
+      }
+
+      // 4. Skein at the center
       drawSkein(ctx, frame);
+
+      // 5. Bright pulses traveling along the traces (drawn last so they sit on top)
+      for (let i = 0; i < THREADS.length; i++) {
+        phases[i] += SPEED * (dt / 16.67);
+        if (phases[i] >= 1) phases[i] = 0;
+        drawPulse(ctx, TRACES[i], THREADS[i].hue, phases[i]);
+      }
 
       if (!reduceMotion) {
         rafRef.current = requestAnimationFrame(draw);
@@ -232,7 +415,7 @@ export default function PixelLoom() {
     };
 
     if (reduceMotion) {
-      draw(performance.now()); // single static frame
+      draw(performance.now());
     } else {
       rafRef.current = requestAnimationFrame(draw);
     }
@@ -250,40 +433,18 @@ export default function PixelLoom() {
       <canvas
         ref={canvasRef}
         className="w-full h-full"
-        style={{
-          imageRendering: "pixelated",
-          // canvas is W×H logical pixels; CSS scales it up, browser nearest-neighbors it.
-        }}
+        style={{ imageRendering: "pixelated" }}
       />
-
-      {/* Crisp HTML labels — no backdrop-blur (paint expensive). */}
-      <div className="absolute inset-0 pointer-events-auto">
-        {THREADS.map((n, i) => (
-          <div
-            key={n.id}
-            className="absolute font-mono text-[0.6875rem] tracking-[0.04em] text-fg-2"
-            style={{
-              right: "0.75rem",
-              top: `${(n.y / H) * 100}%`,
-              transform: "translateY(-50%)",
-            }}
-          >
-            <span className="px-2 py-1 rounded border border-divider bg-bg-1 inline-block">
-              {n.label}
-            </span>
-          </div>
-        ))}
-        <div
-          className="absolute font-mono text-[0.625rem] uppercase tracking-[0.14em] text-fg-3"
-          style={{
-            left: `${(CX / W) * 100}%`,
-            top: `calc(${(CY / H) * 100}% + 2.1rem)`,
-            transform: "translateX(-50%)",
-          }}
-        >
-          skein · 127.0.0.1
-        </div>
-      </div>
+      {/* Screen-reader-only labels — the pixelated logos are decorative
+          to AT, but the agent list still needs to be discoverable. */}
+      <ul className="sr-only">
+        <li>Claude Code</li>
+        <li>Cursor</li>
+        <li>Codex</li>
+        <li>Gemini CLI</li>
+        <li>Antigravity</li>
+        <li>opencode</li>
+      </ul>
     </div>
   );
 }
