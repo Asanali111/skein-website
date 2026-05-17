@@ -147,61 +147,70 @@ const LOGOS: Record<string, string[]> = {
 };
 
 // ─────────────────────────────────────────────────────────────
-// 6 threads. Each declares its agent id, hue, logo center y, and
-// the polyline route from the logo to the skein. Routes are
-// strictly orthogonal — every elbow is a 90° turn.
+// 6 threads arranged hexagonally around the skein. Each declares
+// its agent id, hue, logo center (x, y), and the polyline route
+// from the logo to the skein border. Routes are strictly
+// orthogonal — every elbow is a 90° turn. N/S threads run
+// straight; the four corner threads each have one elbow.
 //
-// The logo is centered at (LOGO_CX, y). The trace leaves the
-// LEFT side of the logo at (LOGO_CX - 5, y) and bends through
-// the polyline until it reaches the skein at (CX, CY).
+// Compass: top → claude-code, NE → cursor, SE → codex,
+// bottom → gemini-cli, SW → antigravity, NW → opencode.
 // ─────────────────────────────────────────────────────────────
-const LOGO_CX = 150;
-const LOGO_HALF = 6;                 // 13×13 sprite, center at (6, 6)
-const TRACE_START_X = LOGO_CX - LOGO_HALF - 1; // 143 — just outside logo's left edge
+const LOGO_HALF = 6; // 13×13 sprite, center at (6, 6)
 
 type Thread = {
   id: string;
   hue: number[];
+  x: number;
   y: number;
   route: [number, number][];
 };
 
+// Skein sprite spans x∈[51,61], y∈[55,65]. Trace endpoints land
+// just outside that box and at distinct x/y so converging threads
+// don't pile onto the same skein pixel.
 const THREADS: Thread[] = [
+  // Top — straight vertical drop
   {
     id: "claude-code",
     hue: PRIMARY_HI,
-    y: 12,
-    route: [[TRACE_START_X, 12], [110, 12], [110, 60], [CX, 60]],
+    x: 56, y: 20,
+    route: [[56, 27], [56, 54]],
   },
+  // Upper-right — west into elbow, then south to top edge of skein
   {
     id: "cursor",
     hue: FG,
-    y: 30,
-    route: [[TRACE_START_X, 30], [95, 30], [95, 60], [CX, 60]],
+    x: 90, y: 40,
+    route: [[83, 40], [60, 40], [60, 54]],
   },
+  // Lower-right (cyan accent) — west into elbow, then north to bottom edge
   {
     id: "codex",
     hue: CYAN,
-    y: 48,
-    route: [[TRACE_START_X, 48], [78, 48], [78, 60], [CX, 60]],
+    x: 90, y: 80,
+    route: [[83, 80], [60, 80], [60, 66]],
   },
+  // Bottom — straight vertical rise
   {
     id: "gemini-cli",
     hue: SPARK,
-    y: 72,
-    route: [[TRACE_START_X, 72], [78, 72], [78, 60], [CX, 60]],
+    x: 56, y: 100,
+    route: [[56, 93], [56, 66]],
   },
+  // Lower-left — east into elbow, then north to bottom edge
   {
     id: "antigravity",
     hue: PRIMARY_HI,
-    y: 90,
-    route: [[TRACE_START_X, 90], [95, 90], [95, 60], [CX, 60]],
+    x: 22, y: 80,
+    route: [[29, 80], [52, 80], [52, 66]],
   },
+  // Upper-left — east into elbow, then south to top edge
   {
     id: "opencode",
     hue: FG_DIM,
-    y: 108,
-    route: [[TRACE_START_X, 108], [110, 108], [110, 60], [CX, 60]],
+    x: 22, y: 40,
+    route: [[29, 40], [52, 40], [52, 54]],
   },
 ];
 
@@ -430,7 +439,7 @@ export default function PixelLoom() {
       // 3. Agent logos at the right edge
       for (let i = 0; i < THREADS.length; i++) {
         const t = THREADS[i];
-        drawLogo(ctx, LOGOS[t.id], LOGO_CX, t.y, t.hue);
+        drawLogo(ctx, LOGOS[t.id], t.x, t.y, t.hue);
       }
 
       // 4. Skein at the center
