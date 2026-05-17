@@ -8,31 +8,34 @@ type Tab = {
   command: string;
   note?: string;
   disabled?: boolean;
+  recommended?: boolean;
 };
 
 const TABS: Tab[] = [
   {
-    id: "pip",
-    label: "pip",
-    command: "pip install skn && skein up",
-  },
-  {
     id: "pipx",
     label: "pipx",
     command: "pipx install skn && skein up",
-    note: "Recommended for CLI tools — isolated env, auto-PATH.",
+    note: "Recommended — isolated env, auto-PATH, single command works on a clean machine.",
+    recommended: true,
   },
   {
     id: "uv",
     label: "uv",
     command: "uv tool install skn && skein up",
-    note: "Modern, fastest install path.",
+    note: "Fastest install path if you already have uv.",
+  },
+  {
+    id: "pip",
+    label: "pip",
+    command: "pip install --user skn && hash -r && skein up",
+    note: "Plain pip works but needs a PATH refresh — that's what `hash -r` does. Prefer pipx.",
   },
   {
     id: "brew",
     label: "brew",
     command: "brew install skn  # coming soon",
-    note: "Homebrew tap pending. Use pip/pipx/uv for now.",
+    note: "Homebrew tap pending. Use pipx for now.",
     disabled: true,
   },
 ];
@@ -42,7 +45,7 @@ type Props = {
 };
 
 export default function InstallTabs({ className = "" }: Props) {
-  const [activeId, setActiveId] = useState<string>("pip");
+  const [activeId, setActiveId] = useState<string>("pipx");
   const [copied, setCopied] = useState(false);
 
   const active = TABS.find((t) => t.id === activeId) ?? TABS[0];
@@ -77,7 +80,7 @@ export default function InstallTabs({ className = "" }: Props) {
                 setCopied(false);
               }}
               className={[
-                "font-mono text-[0.75rem] uppercase tracking-[0.08em] px-3 py-1.5 rounded-t-md transition-colors",
+                "relative font-mono text-[0.75rem] uppercase tracking-[0.08em] px-3 py-1.5 rounded-t-md transition-colors inline-flex items-center gap-1.5",
                 isActive
                   ? "bg-bg-3 text-fg-0 border-b-[2px] border-primary"
                   : "bg-transparent text-fg-2 hover:text-fg-1 border-b-[2px] border-transparent",
@@ -85,6 +88,12 @@ export default function InstallTabs({ className = "" }: Props) {
               ].join(" ")}
             >
               {tab.label}
+              {tab.recommended && (
+                <span
+                  aria-label="recommended"
+                  className="inline-block w-1.5 h-1.5 rounded-full bg-spark shadow-spark"
+                />
+              )}
             </button>
           );
         })}
