@@ -30,12 +30,12 @@ export default function Footer() {
               changelog
             </Link>
             <a
-              href="https://discord.gg/"
+              href="https://github.com/Asanali111/skein/discussions"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-fg-0 transition-colors"
             >
-              discord
+              discuss
             </a>
           </div>
         </div>
