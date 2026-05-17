@@ -89,3 +89,15 @@ body {
   font-variation-settings: "opsz" 40, "SOFT" 50;
   line-height: 1.35;
 }
+
+/* Terminal caret blink */
+.skein-caret {
+  animation: skein-blink 1.1s steps(1, end) infinite;
+}
+@keyframes skein-blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skein-caret { animation: none; }
+}
