@@ -3,24 +3,14 @@
 import { useEffect, useRef } from "react";
 
 /**
- * PixelLoom — chunky pixel-art hero animation.
+ * PixelLoom — chunky pixel-art hero animation with full-color logo overlays.
  *
- * Renders at 160×120 logical pixels and is scaled up with
- * `image-rendering: pixelated` so each drawn pixel becomes a chunky
- * 4-6px on-screen block. Single requestAnimationFrame loop, no React
- * state per frame, no SVG filters.
- *
- * Composition (iter 27):
- *   - Six client labels rendered as pixelated text in each brand's
- *     accent color, positioned compass-style around the central skein.
- *   - Orthogonal circuit traces connect each label to the skein border.
- *   - The 11×11 pixel-art skein sprite spins through four yarn-loop
- *     frames at the center; halo breathes; highlight orbits.
- *   - Pulses on each trace alternate direction per cycle: phase 0→1
- *     travels logo→skein (a "write"), phase 1→2 travels skein→logo
- *     (a "read"). Staggered phases mean at any moment some threads
- *     are writing, others are reading — the work process of Skein
- *     made visible.
+ * The 160×120 canvas (scaled up with `image-rendering: pixelated`) draws the
+ * traces, elbow junctions, animated skein, and bidirectional pulses. The
+ * client logos are NOT drawn into the canvas — downscaling 500-2048px PNGs
+ * into an 18×18 logical grid destroyed too much detail. Instead each logo
+ * is an HTML `<img>` positioned absolutely over the canvas at the same
+ * compass coordinates, letting the browser smooth-scale from native res.
  */
 
 const W = 160;
@@ -38,6 +28,7 @@ const C_CLAUDE = [217, 119, 87];     // warm orange (Anthropic)
 const C_CURSOR = [230, 230, 230];    // near-white (Cursor monochrome)
 const C_CODEX = [15, 211, 211];      // cyan (carryover accent)
 const C_GEMINI = [122, 166, 240];    // soft blue
+const C_VSCODE = [0, 122, 204];      // blue
 const C_OPENCODE = [168, 168, 168];  // mid gray
 // Antigravity — per-letter rainbow gradient (blue → purple → pink → amber → yellow)
 const C_ANTIGRAV: number[][] = [
@@ -52,38 +43,10 @@ const C_ANTIGRAV: number[][] = [
 ];
 
 // ─────────────────────────────────────────────────────────────
-// 4×6 uppercase pixel font. Only the 17 letters used in the
-// six agent names are defined: A C D E G I L M N O P R S T U V X
-// ─────────────────────────────────────────────────────────────
-const FONT: Record<string, string[]> = {
-  "A": [".##.", "#..#", "####", "#..#", "#..#", "#..#"],
-  "C": [".###", "#...", "#...", "#...", "#...", ".###"],
-  "D": ["###.", "#..#", "#..#", "#..#", "#..#", "###."],
-  "E": ["####", "#...", "###.", "#...", "#...", "####"],
-  "G": [".###", "#...", "#...", "#.##", "#..#", ".###"],
-  "I": ["####", ".##.", ".##.", ".##.", ".##.", "####"],
-  "L": ["#...", "#...", "#...", "#...", "#...", "####"],
-  "M": ["#..#", "####", "#..#", "#..#", "#..#", "#..#"],
-  "N": ["#..#", "##.#", "##.#", "#.##", "#.##", "#..#"],
-  "O": [".##.", "#..#", "#..#", "#..#", "#..#", ".##."],
-  "P": ["###.", "#..#", "#..#", "###.", "#...", "#..."],
-  "R": ["###.", "#..#", "#..#", "###.", "#.#.", "#..#"],
-  "S": [".###", "#...", ".##.", "...#", "...#", "###."],
-  "T": ["####", ".##.", ".##.", ".##.", ".##.", ".##."],
-  "U": ["#..#", "#..#", "#..#", "#..#", "#..#", ".##."],
-  "V": ["#..#", "#..#", "#..#", "#..#", ".##.", ".##."],
-  "X": ["#..#", "#..#", ".##.", ".##.", "#..#", "#..#"],
-};
-
-const CHAR_W = 4;
-const CHAR_H = 6;
-const CHAR_GAP = 1;
-const CHAR_PITCH = CHAR_W + CHAR_GAP;
-
-// ─────────────────────────────────────────────────────────────
-// Six threads. Each declares its agent id, displayed label,
-// color (single or per-letter), label center (x, y), and the
-// polyline route from the label edge to the skein border.
+// Six threads. Each declares its agent id, brand label, color
+// (drives trace + pulse hue), logo center (x, y) in logical canvas
+// coords, the PNG src, and the polyline route from the logo edge
+// to the skein border.
 // Routes are strictly orthogonal — every elbow is a 90° turn.
 // Compass layout: N top, NE upper-right, SE lower-right,
 // S bottom, SW lower-left, NW upper-left.
@@ -91,41 +54,47 @@ const CHAR_PITCH = CHAR_W + CHAR_GAP;
 type Thread = {
   id: string;
   label: string;
+  imgSrc: string;
   color: number[] | number[][];
   x: number;
   y: number;
+  /** CSS size of the rendered <img>. Base was 3rem; per-brand bumps live here. */
+  sizeRem: string;
   route: [number, number][];
 };
 
 const THREADS: Thread[] = [
-  // N — CLAUDE, straight vertical drop
-  { id: "claude-code", label: "CLAUDE", color: C_CLAUDE,
-    x: 80, y: 22,
+  // N — CLAUDE DESKTOP, straight vertical drop  (+100% size)
+  { id: "claude-desktop", label: "CLAUDE", imgSrc: "/logos/claude_desktop.png", color: C_CLAUDE,
+    x: 80, y: 22, sizeRem: "6rem",
     route: [[80, 27], [80, 54]] },
 
-  // NE — CURSOR, west into elbow, then south to skein top
-  { id: "cursor", label: "CURSOR", color: C_CURSOR,
-    x: 114, y: 42,
+  // NE — CURSOR, west into elbow, then south to skein top  (+100% size)
+  { id: "cursor", label: "CURSOR", imgSrc: "/logos/cursor.png", color: C_CURSOR,
+    x: 114, y: 42, sizeRem: "6rem",
     route: [[99, 42], [84, 42], [84, 54]] },
 
-  // SE — CODEX, west into elbow, then north to skein bottom
-  { id: "codex", label: "CODEX", color: C_CODEX,
-    x: 114, y: 78,
+  // SE — CODEX, west into elbow, then north to skein bottom  (+100% size)
+  { id: "codex", label: "CODEX", imgSrc: "/logos/codex.png", color: C_CODEX,
+    x: 114, y: 78, sizeRem: "6rem",
     route: [[101, 78], [84, 78], [84, 66]] },
 
-  // S — GEMINI, straight vertical rise
-  { id: "gemini-cli", label: "GEMINI", color: C_GEMINI,
-    x: 80, y: 100,
+  // S — OPENCODE (swapped from NW): straight vertical rise.
+  // +150% size, plus a subtle radial-gradient glow behind it (added
+  // separately in the JSX) since the mark is low-contrast on the dark bg.
+  { id: "opencode", label: "OPENCODE", imgSrc: "/logos/opencode.png", color: C_OPENCODE,
+    x: 80, y: 100, sizeRem: "7.5rem",
     route: [[80, 95], [80, 66]] },
 
-  // SW — ANTIGRAV (rainbow), east into elbow, then north to skein bottom
-  { id: "antigravity", label: "ANTIGRAV", color: C_ANTIGRAV,
-    x: 44, y: 78,
+  // SW — ANTIGRAV (rainbow), east into elbow, then north to skein bottom  (+100% size)
+  { id: "antigravity", label: "ANTIGRAV", imgSrc: "/logos/antigravity_logo.png", color: C_ANTIGRAV,
+    x: 44, y: 78, sizeRem: "6rem",
     route: [[64, 78], [76, 78], [76, 66]] },
 
-  // NW — OPENCODE, east into elbow, then south to skein top
-  { id: "opencode", label: "OPENCODE", color: C_OPENCODE,
-    x: 44, y: 42,
+  // NW — VS CODE (swapped from S): east into elbow, then south to skein top.
+  // +20% size only — its mark is bold and reads clearly at small scale.
+  { id: "vscode", label: "VS CODE", imgSrc: "/logos/vscode.png", color: C_VSCODE,
+    x: 44, y: 42, sizeRem: "3.6rem",
     route: [[64, 42], [76, 42], [76, 54]] },
 ];
 
@@ -208,41 +177,6 @@ function rgba(c: number[], a: number) {
 
 function isMulticolor(color: number[] | number[][]): color is number[][] {
   return Array.isArray(color[0]);
-}
-
-function drawText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  cx: number,
-  cy: number,
-  color: number[] | number[][],
-) {
-  const totalW = text.length * CHAR_PITCH - CHAR_GAP;
-  const ox = Math.round(cx) - Math.floor(totalW / 2);
-  const oy = Math.round(cy) - Math.floor(CHAR_H / 2);
-  const multi = isMulticolor(color);
-
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i].toUpperCase();
-    const glyph = FONT[ch];
-    if (!glyph) continue;
-
-    const letterColor = multi
-      ? (color as number[][])[i % (color as number[][]).length]
-      : (color as number[]);
-    ctx.fillStyle = rgb(letterColor);
-
-    const charX = ox + i * CHAR_PITCH;
-    for (let r = 0; r < CHAR_H; r++) {
-      const row = glyph[r];
-      if (!row) continue;
-      for (let c = 0; c < CHAR_W; c++) {
-        if (row[c] === "#") {
-          ctx.fillRect(charX + c, oy + r, 1, 1);
-        }
-      }
-    }
-  }
 }
 
 function drawSkein(ctx: CanvasRenderingContext2D, frame: number) {
@@ -394,16 +328,10 @@ export default function PixelLoom() {
         drawJunctions(ctx, TRACES[i], hue);
       }
 
-      // 3. Text labels at compass positions
-      for (let i = 0; i < THREADS.length; i++) {
-        const t = THREADS[i];
-        drawText(ctx, t.label, t.x, t.y, t.color);
-      }
-
-      // 4. Skein at center
+      // 3. Skein at center (logos render as HTML overlays — see JSX below)
       drawSkein(ctx, frame);
 
-      // 5. Bidirectional pulses (drawn last so they sit on top)
+      // 4. Bidirectional pulses (drawn last so they sit on top)
       for (let i = 0; i < THREADS.length; i++) {
         phases[i] += SPEED * (dt / 16.67);
         if (phases[i] >= 2) phases[i] -= 2;
@@ -436,18 +364,48 @@ export default function PixelLoom() {
     >
       <canvas
         ref={canvasRef}
-        className="w-full h-full"
+        className="absolute inset-0 w-full h-full"
         style={{ imageRendering: "pixelated" }}
       />
-      {/* Screen-reader-only client list — labels in canvas are decorative to AT. */}
-      <ul className="sr-only">
-        <li>Claude Code</li>
-        <li>Cursor</li>
-        <li>Codex</li>
-        <li>Gemini CLI</li>
-        <li>Antigravity</li>
-        <li>opencode</li>
-      </ul>
+      {/* Subtle radial-gradient glow behind opencode — the only mark whose
+          contrast against the warm-dark bg is too low to read on its own. */}
+      {(() => {
+        const oc = THREADS.find((t) => t.id === "opencode");
+        if (!oc) return null;
+        return (
+          <div
+            aria-hidden
+            className="absolute pointer-events-none"
+            style={{
+              left: `${(oc.x / W) * 100}%`,
+              top: `${(oc.y / H) * 100}%`,
+              width: "10rem",
+              height: "10rem",
+              transform: "translate(-50%, -50%)",
+              background:
+                "radial-gradient(circle, rgba(243, 239, 231, 0.14) 0%, rgba(243, 239, 231, 0.05) 40%, transparent 70%)",
+            }}
+          />
+        );
+      })()}
+
+      {THREADS.map((t) => (
+        <img
+          key={t.id}
+          src={t.imgSrc}
+          alt=""
+          className="absolute select-none"
+          style={{
+            left: `${(t.x / W) * 100}%`,
+            top: `${(t.y / H) * 100}%`,
+            width: t.sizeRem,
+            height: t.sizeRem,
+            transform: "translate(-50%, -50%)",
+            objectFit: "contain",
+            imageRendering: "auto",
+          }}
+        />
+      ))}
     </div>
   );
 }

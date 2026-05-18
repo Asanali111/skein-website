@@ -1,8 +1,7 @@
 export type ClientId =
-  | "claude-code"
+  | "claude-desktop"
   | "cursor"
   | "codex"
-  | "gemini-cli"
   | "antigravity"
   | "opencode"
   | "vscode";
@@ -23,13 +22,26 @@ const SKEIN_URL = "http://127.0.0.1:8765/mcp";
 
 export const CLIENTS: Client[] = [
   {
-    id: "claude-code",
-    name: "Claude Code",
-    blurb: "Anthropic's official CLI. Shared memory across every Claude session.",
+    id: "claude-desktop",
+    name: "Claude Desktop",
+    blurb: "Anthropic's Desktop App. Shared memory across every Claude session.",
     install: {
       kind: "command",
-      cmd: `claude mcp add skein --transport http ${SKEIN_URL} --header "Authorization: Bearer $SKEIN_TOKEN"`,
-      note: "Run once — Claude Code stores MCPs in its own settings. Use `skein doctor` to print your bearer token.",
+      cmd: `skein connect claude-desktop`,
+      note: "Writes `claude_desktop_config.json` in the app directory.",
+    },
+    config: {
+      kind: "config",
+      path: "claude_desktop_config.json",
+      lang: "json",
+      content: `{
+  "mcpServers": {
+    "skein": {
+      "command": "npx",
+      "args": ["-y", "@skein/mcp-server"]
+    }
+  }
+}`,
     },
   },
   {
@@ -77,31 +89,6 @@ url = "${SKEIN_URL}"
 
 [mcpServers.headers]
 Authorization = "Bearer $SKEIN_TOKEN"`,
-    },
-  },
-  {
-    id: "gemini-cli",
-    name: "Gemini CLI",
-    blurb: "Google's command-line Gemini agent. No `transport` key (iter 18.1 fix).",
-    install: {
-      kind: "command",
-      cmd: "skein connect gemini-cli",
-      note: "Writes `~/.gemini/settings.json`. Transport is inferred from `url`.",
-    },
-    config: {
-      kind: "config",
-      path: "~/.gemini/settings.json",
-      lang: "json",
-      content: `{
-  "mcpServers": {
-    "skein": {
-      "url": "${SKEIN_URL}",
-      "headers": {
-        "Authorization": "Bearer $SKEIN_TOKEN"
-      }
-    }
-  }
-}`,
     },
   },
   {

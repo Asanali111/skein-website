@@ -16,7 +16,7 @@ export default function Hero() {
           One memory across every coding LLM.
         </p>
         <p className="text-[0.9375rem] leading-[1.55] text-fg-1 max-w-[30rem] mb-8">
-          Local-first context bus for Claude Code, Cursor, Codex, Gemini CLI, Antigravity,
+          Local-first context bus for Claude Desktop, Cursor, Codex, VS Code, Antigravity,
           opencode, and more. No vendor lock-in. No cloud round-trip. The daemon runs on
           127.0.0.1.
         </p>

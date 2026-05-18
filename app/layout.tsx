@@ -26,12 +26,12 @@ const mono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Skein — one memory across every coding LLM",
   description:
-    "Local-first context bus for Claude Code, Cursor, Codex, Gemini CLI, Antigravity, opencode, and more. No vendor lock-in. No cloud round-trip. The daemon runs on 127.0.0.1.",
+    "Local-first context bus for Claude Desktop, Cursor, Codex, VS Code, Antigravity, opencode, and more. No vendor lock-in. No cloud round-trip. The daemon runs on 127.0.0.1.",
   metadataBase: new URL("https://skein.dev"),
   openGraph: {
-    title: "Skein — one memory across every coding LLM",
+    title: "Skein",
     description:
-      "Local-first context bus for Claude Code, Cursor, Codex, Gemini CLI, Antigravity, opencode, and more. MIT, runs on 127.0.0.1.",
+      "Local-first context bus for Claude Desktop, Cursor, Codex, VS Code, Antigravity, opencode, and more. MIT, runs on 127.0.0.1.",
     type: "website",
     url: "https://skein.dev",
   },

@@ -5,7 +5,7 @@ import ClientsGallery from "@/components/ClientsGallery";
 
 export const metadata = {
   title: "Integrations — Skein",
-  description: "Skein gives every coding LLM durable cross-session memory. Configs for Claude Code, Cursor, Codex, Gemini CLI, Antigravity, opencode, and VS Code.",
+  description: "Skein gives every coding LLM durable cross-session memory. Configs for Claude Desktop, Cursor, Codex, VS Code, Antigravity, and opencode.",
 };
 
 export default function IntegrationsIndex() {
