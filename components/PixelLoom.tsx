@@ -55,6 +55,13 @@ type Thread = {
   id: string;
   label: string;
   imgSrc: string;
+  /** Optional alternate <img src> rendered in light mode. When set, two
+   *  imgs are rendered with Tailwind `hidden dark:block` / `block dark:hidden`
+   *  so the theme toggle swaps them. */
+  imgSrcLight?: string;
+  /** When true, applies `dark:invert` to the img. Cheap one-line fix for
+   *  monochrome marks that need to flip black↔white between themes. */
+  darkInvert?: boolean;
   color: number[] | number[][];
   x: number;
   y: number;
@@ -83,9 +90,14 @@ const THREADS: Thread[] = [
     x: 114, y: 78, sizeRem: "6rem", glowRem: "9rem", glowAlpha: 0.10,
     route: [[101, 78], [84, 78], [84, 66]] },
 
-  // S — OPENCODE (swapped from NW). Largest mark on the page;
-  // strongest glow because the logo itself is the lowest-contrast.
+  // S — OPENCODE (swapped from NW). Largest mark on the page.
+  // The source PNG is pure grayscale (dark on transparent), so a CSS
+  // `dark:invert` filter flips it cleanly to light-on-transparent for
+  // the dark theme — no hue distortion (zero saturation in the source).
+  // If a hand-designed `opencode_light.png` is added later, set
+  // imgSrcLight to it and drop the darkInvert flag.
   { id: "opencode", label: "OPENCODE", imgSrc: "/logos/opencode.png", color: C_OPENCODE,
+    darkInvert: true,
     x: 80, y: 100, sizeRem: "9rem", glowRem: "13rem", glowAlpha: 0.20,
     route: [[80, 95], [80, 66]] },
 
@@ -402,23 +414,40 @@ export default function PixelLoom() {
         );
       })}
 
-      {THREADS.map((t) => (
-        <img
-          key={t.id}
-          src={t.imgSrc}
-          alt=""
-          className="absolute select-none"
-          style={{
-            left: `${(t.x / W) * 100}%`,
-            top: `${(t.y / H) * 100}%`,
-            width: t.sizeRem,
-            height: t.sizeRem,
-            transform: "translate(-50%, -50%)",
-            objectFit: "contain",
-            imageRendering: "auto",
-          }}
-        />
-      ))}
+      {THREADS.map((t) => {
+        const style = {
+          left: `${(t.x / W) * 100}%`,
+          top: `${(t.y / H) * 100}%`,
+          width: t.sizeRem,
+          height: t.sizeRem,
+          transform: "translate(-50%, -50%)",
+          objectFit: "contain" as const,
+          imageRendering: "auto" as const,
+        };
+
+        // If a hand-designed light-mode variant is provided, render both
+        // imgs and let CSS pick the active one based on the theme class.
+        if (t.imgSrcLight) {
+          return (
+            <span key={t.id}>
+              <img src={t.imgSrc}      alt="" className="absolute select-none hidden dark:block" style={style} />
+              <img src={t.imgSrcLight} alt="" className="absolute select-none block dark:hidden" style={style} />
+            </span>
+          );
+        }
+
+        // Otherwise, render the single img — optionally inverting it in
+        // dark mode for grayscale marks (opencode).
+        return (
+          <img
+            key={t.id}
+            src={t.imgSrc}
+            alt=""
+            className={`absolute select-none${t.darkInvert ? " dark:invert" : ""}`}
+            style={style}
+          />
+        );
+      })}
     </div>
   );
 }
