@@ -3,218 +3,135 @@
 import { useEffect, useRef } from "react";
 
 /**
- * PixelLoom — a chunky pixel-art weaving loom for the hero.
+ * PixelLoom — chunky pixel-art hero animation.
  *
- * Renders at a small logical resolution (160×120 pixels) and is scaled up
- * with `image-rendering: pixelated` so each drawn pixel becomes a chunky
+ * Renders at 160×120 logical pixels and is scaled up with
+ * `image-rendering: pixelated` so each drawn pixel becomes a chunky
  * 4-6px on-screen block. Single requestAnimationFrame loop, no React
- * state updates per frame, no SVG filters, no backdrop-blur.
+ * state per frame, no SVG filters.
  *
- * Composition (iter 26):
- *   - 6 agent logos (9×9 pixel-art sprites) sit at the right edge.
- *   - From each logo, an orthogonal "circuit trace" routes to the
- *     central pixel-art skein sprite. Right-angle elbows only — no waves.
- *   - Static traces are dim (always visible, like PCB ink).
- *   - Junction dots at every elbow.
- *   - Bright "pulse" pixels travel along each trace at staggered cadence,
- *     fading in at the source and fading out at the skein — data packets
- *     arriving in the memory bus.
- *   - The 11×11 skein sprite at the center rotates its yarn loops on
- *     a 4-frame cycle.
+ * Composition (iter 27):
+ *   - Six client labels rendered as pixelated text in each brand's
+ *     accent color, positioned compass-style around the central skein.
+ *   - Orthogonal circuit traces connect each label to the skein border.
+ *   - The 11×11 pixel-art skein sprite spins through four yarn-loop
+ *     frames at the center; halo breathes; highlight orbits.
+ *   - Pulses on each trace alternate direction per cycle: phase 0→1
+ *     travels logo→skein (a "write"), phase 1→2 travels skein→logo
+ *     (a "read"). Staggered phases mean at any moment some threads
+ *     are writing, others are reading — the work process of Skein
+ *     made visible.
  */
 
 const W = 160;
 const H = 120;
-
-const CX = 56;
+const CX = 80;
 const CY = 60;
 
-const PRIMARY = [109, 40, 217];   // #6d28d9
-const PRIMARY_HI = [167, 139, 250]; // #a78bfa
-const SPARK = [101, 163, 13];     // #65a30d
-const CYAN = [15, 211, 211];      // #0FD3D3 — one accent thread for variety
-const FG = [243, 239, 231];       // #f3efe7
-const FG_DIM = [122, 114, 99];    // #7a7263
+// Base palette
+const PRIMARY = [109, 40, 217];
+const PRIMARY_HI = [167, 139, 250];
+const FG = [243, 239, 231];
+
+// Per-brand accent colors
+const C_CLAUDE = [217, 119, 87];     // warm orange (Anthropic)
+const C_CURSOR = [230, 230, 230];    // near-white (Cursor monochrome)
+const C_CODEX = [15, 211, 211];      // cyan (carryover accent)
+const C_GEMINI = [122, 166, 240];    // soft blue
+const C_OPENCODE = [168, 168, 168];  // mid gray
+// Antigravity — per-letter rainbow gradient (blue → purple → pink → amber → yellow)
+const C_ANTIGRAV: number[][] = [
+  [88, 156, 255],   // A
+  [130, 110, 255],  // N
+  [180, 90, 255],   // T
+  [220, 90, 200],   // I
+  [255, 90, 150],   // G
+  [255, 140, 90],   // R
+  [255, 180, 60],   // A
+  [255, 220, 60],   // V
+];
 
 // ─────────────────────────────────────────────────────────────
-// 13×13 agent logo sprites. `#` = bright (FG), `$` = thread hue.
-// Logo center is (6, 6) within each grid.
-//
-// Designed as pixel-art interpretations evoking each brand's
-// visual-identity language (not pixelations of their official
-// marks): Claude Code = starburst / sunburst spark; Cursor =
-// pointer arrow; Codex = hex outline (geometric algorithmic);
-// Gemini CLI = 4-pointed gem; Antigravity = up-arrow;
-// opencode = TUI brackets.
+// 4×6 uppercase pixel font. Only the 17 letters used in the
+// six agent names are defined: A C D E G I L M N O P R S T U V X
 // ─────────────────────────────────────────────────────────────
-const LOGOS: Record<string, string[]> = {
-  // Claude Code — 4-rayed compass-star (Anthropic spark feel)
-  "claude-code": [
-    ".............",
-    ".............",
-    "......#......",
-    "......#......",
-    ".....###.....",
-    "....#####....",
-    "#############",
-    "....#####....",
-    ".....###.....",
-    "......#......",
-    "......#......",
-    ".............",
-    ".............",
-  ],
-  // Cursor — classic mouse pointer with tail
-  "cursor": [
-    "#............",
-    "##...........",
-    "###..........",
-    "####.........",
-    "#####........",
-    "######.......",
-    "#######......",
-    "########.....",
-    "#####........",
-    "##.##........",
-    ".#..##.......",
-    ".....##......",
-    "......##.....",
-  ],
-  // Codex — hexagonal outline (algorithmic / OpenAI-shaped)
-  "codex": [
-    ".............",
-    "....######...",
-    "...#......#..",
-    "..#........#.",
-    ".#..........#",
-    ".#..........#",
-    ".#..........#",
-    ".#..........#",
-    ".#..........#",
-    "..#........#.",
-    "...#......#..",
-    "....######...",
-    ".............",
-  ],
-  // Gemini CLI — 4-pointed gem (sparkle)
-  "gemini-cli": [
-    "......#......",
-    ".....###.....",
-    "....#####....",
-    "...#######...",
-    "..#########..",
-    ".###########.",
-    "#############",
-    ".###########.",
-    "..#########..",
-    "...#######...",
-    "....#####....",
-    ".....###.....",
-    "......#......",
-  ],
-  // Antigravity — up-arrow chevron (rising motion)
-  "antigravity": [
-    ".............",
-    "......#......",
-    ".....###.....",
-    "....#####....",
-    "...#######...",
-    "..#########..",
-    ".###########.",
-    "......#......",
-    "......#......",
-    "......#......",
-    "......#......",
-    "......#......",
-    "......#......",
-  ],
-  // opencode — bracket pair with cursor-bars inside (TUI feel)
-  "opencode": [
-    "####.....####",
-    "#...........#",
-    "#...........#",
-    "#...........#",
-    "#....#.#....#",
-    "#....#.#....#",
-    "#....#.#....#",
-    "#....#.#....#",
-    "#....#.#....#",
-    "#...........#",
-    "#...........#",
-    "#...........#",
-    "####.....####",
-  ],
+const FONT: Record<string, string[]> = {
+  "A": [".##.", "#..#", "####", "#..#", "#..#", "#..#"],
+  "C": [".###", "#...", "#...", "#...", "#...", ".###"],
+  "D": ["###.", "#..#", "#..#", "#..#", "#..#", "###."],
+  "E": ["####", "#...", "###.", "#...", "#...", "####"],
+  "G": [".###", "#...", "#...", "#.##", "#..#", ".###"],
+  "I": ["####", ".##.", ".##.", ".##.", ".##.", "####"],
+  "L": ["#...", "#...", "#...", "#...", "#...", "####"],
+  "M": ["#..#", "####", "#..#", "#..#", "#..#", "#..#"],
+  "N": ["#..#", "##.#", "##.#", "#.##", "#.##", "#..#"],
+  "O": [".##.", "#..#", "#..#", "#..#", "#..#", ".##."],
+  "P": ["###.", "#..#", "#..#", "###.", "#...", "#..."],
+  "R": ["###.", "#..#", "#..#", "###.", "#.#.", "#..#"],
+  "S": [".###", "#...", ".##.", "...#", "...#", "###."],
+  "T": ["####", ".##.", ".##.", ".##.", ".##.", ".##."],
+  "U": ["#..#", "#..#", "#..#", "#..#", "#..#", ".##."],
+  "V": ["#..#", "#..#", "#..#", "#..#", ".##.", ".##."],
+  "X": ["#..#", "#..#", ".##.", ".##.", "#..#", "#..#"],
 };
 
-// ─────────────────────────────────────────────────────────────
-// 6 threads arranged hexagonally around the skein. Each declares
-// its agent id, hue, logo center (x, y), and the polyline route
-// from the logo to the skein border. Routes are strictly
-// orthogonal — every elbow is a 90° turn. N/S threads run
-// straight; the four corner threads each have one elbow.
-//
-// Compass: top → claude-code, NE → cursor, SE → codex,
-// bottom → gemini-cli, SW → antigravity, NW → opencode.
-// ─────────────────────────────────────────────────────────────
-const LOGO_HALF = 6; // 13×13 sprite, center at (6, 6)
+const CHAR_W = 4;
+const CHAR_H = 6;
+const CHAR_GAP = 1;
+const CHAR_PITCH = CHAR_W + CHAR_GAP;
 
+// ─────────────────────────────────────────────────────────────
+// Six threads. Each declares its agent id, displayed label,
+// color (single or per-letter), label center (x, y), and the
+// polyline route from the label edge to the skein border.
+// Routes are strictly orthogonal — every elbow is a 90° turn.
+// Compass layout: N top, NE upper-right, SE lower-right,
+// S bottom, SW lower-left, NW upper-left.
+// ─────────────────────────────────────────────────────────────
 type Thread = {
   id: string;
-  hue: number[];
+  label: string;
+  color: number[] | number[][];
   x: number;
   y: number;
   route: [number, number][];
 };
 
-// Skein sprite spans x∈[51,61], y∈[55,65]. Trace endpoints land
-// just outside that box and at distinct x/y so converging threads
-// don't pile onto the same skein pixel.
 const THREADS: Thread[] = [
-  // Top — straight vertical drop
-  {
-    id: "claude-code",
-    hue: PRIMARY_HI,
-    x: 56, y: 20,
-    route: [[56, 27], [56, 54]],
-  },
-  // Upper-right — west into elbow, then south to top edge of skein
-  {
-    id: "cursor",
-    hue: FG,
-    x: 90, y: 40,
-    route: [[83, 40], [60, 40], [60, 54]],
-  },
-  // Lower-right (cyan accent) — west into elbow, then north to bottom edge
-  {
-    id: "codex",
-    hue: CYAN,
-    x: 90, y: 80,
-    route: [[83, 80], [60, 80], [60, 66]],
-  },
-  // Bottom — straight vertical rise
-  {
-    id: "gemini-cli",
-    hue: SPARK,
-    x: 56, y: 100,
-    route: [[56, 93], [56, 66]],
-  },
-  // Lower-left — east into elbow, then north to bottom edge
-  {
-    id: "antigravity",
-    hue: PRIMARY_HI,
-    x: 22, y: 80,
-    route: [[29, 80], [52, 80], [52, 66]],
-  },
-  // Upper-left — east into elbow, then south to top edge
-  {
-    id: "opencode",
-    hue: FG_DIM,
-    x: 22, y: 40,
-    route: [[29, 40], [52, 40], [52, 54]],
-  },
+  // N — CLAUDE, straight vertical drop
+  { id: "claude-code", label: "CLAUDE", color: C_CLAUDE,
+    x: 80, y: 22,
+    route: [[80, 27], [80, 54]] },
+
+  // NE — CURSOR, west into elbow, then south to skein top
+  { id: "cursor", label: "CURSOR", color: C_CURSOR,
+    x: 114, y: 42,
+    route: [[99, 42], [84, 42], [84, 54]] },
+
+  // SE — CODEX, west into elbow, then north to skein bottom
+  { id: "codex", label: "CODEX", color: C_CODEX,
+    x: 114, y: 78,
+    route: [[101, 78], [84, 78], [84, 66]] },
+
+  // S — GEMINI, straight vertical rise
+  { id: "gemini-cli", label: "GEMINI", color: C_GEMINI,
+    x: 80, y: 100,
+    route: [[80, 95], [80, 66]] },
+
+  // SW — ANTIGRAV (rainbow), east into elbow, then north to skein bottom
+  { id: "antigravity", label: "ANTIGRAV", color: C_ANTIGRAV,
+    x: 44, y: 78,
+    route: [[64, 78], [76, 78], [76, 66]] },
+
+  // NW — OPENCODE, east into elbow, then south to skein top
+  { id: "opencode", label: "OPENCODE", color: C_OPENCODE,
+    x: 44, y: 42,
+    route: [[64, 42], [76, 42], [76, 54]] },
 ];
 
-// Pre-compute each route's pixel positions + total length once.
+// ─────────────────────────────────────────────────────────────
+// Pre-compute trace pixels for each route once at module load.
+// ─────────────────────────────────────────────────────────────
 type Trace = { pixels: [number, number][]; elbows: [number, number][] };
 
 function walkRoute(route: [number, number][]): Trace {
@@ -223,27 +140,25 @@ function walkRoute(route: [number, number][]): Trace {
   for (let i = 0; i < route.length - 1; i++) {
     const [x1, y1] = route[i];
     const [x2, y2] = route[i + 1];
-    if (i > 0) elbows.push([x1, y1]); // each interior route point is an elbow
+    if (i > 0) elbows.push([x1, y1]);
     const dx = Math.sign(x2 - x1);
     const dy = Math.sign(y2 - y1);
-    let x = x1;
-    let y = y1;
-    // Walk inclusive of x1, exclusive of x2 to avoid double-painting elbows
+    let x = x1, y = y1;
     while (x !== x2 || y !== y2) {
       pixels.push([x, y]);
       x += dx;
       y += dy;
     }
   }
-  pixels.push(route[route.length - 1]); // final point (the skein junction)
+  pixels.push(route[route.length - 1]);
   return { pixels, elbows };
 }
 
 const TRACES: Trace[] = THREADS.map((t) => walkRoute(t.route));
 
 // ─────────────────────────────────────────────────────────────
-// Skein sprite (11×11). Outer ring = FG bright, shell = PRIMARY_HI,
-// inner loops = PRIMARY (rotating across 4 frames).
+// Skein sprite (11×11). Outer ring = bright FG, shell = PRIMARY_HI,
+// inner rotating loops = PRIMARY.
 // ─────────────────────────────────────────────────────────────
 const SKEIN_BASE = [
   "...#####...",
@@ -281,7 +196,57 @@ const HALO_PIXELS: [number, number][] = (() => {
   return out;
 })();
 
+// ─────────────────────────────────────────────────────────────
+// Drawing primitives
+// ─────────────────────────────────────────────────────────────
+function rgb(c: number[]) {
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+function rgba(c: number[], a: number) {
+  return `rgba(${c[0]},${c[1]},${c[2]},${a.toFixed(3)})`;
+}
+
+function isMulticolor(color: number[] | number[][]): color is number[][] {
+  return Array.isArray(color[0]);
+}
+
+function drawText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  cx: number,
+  cy: number,
+  color: number[] | number[][],
+) {
+  const totalW = text.length * CHAR_PITCH - CHAR_GAP;
+  const ox = Math.round(cx) - Math.floor(totalW / 2);
+  const oy = Math.round(cy) - Math.floor(CHAR_H / 2);
+  const multi = isMulticolor(color);
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i].toUpperCase();
+    const glyph = FONT[ch];
+    if (!glyph) continue;
+
+    const letterColor = multi
+      ? (color as number[][])[i % (color as number[][]).length]
+      : (color as number[]);
+    ctx.fillStyle = rgb(letterColor);
+
+    const charX = ox + i * CHAR_PITCH;
+    for (let r = 0; r < CHAR_H; r++) {
+      const row = glyph[r];
+      if (!row) continue;
+      for (let c = 0; c < CHAR_W; c++) {
+        if (row[c] === "#") {
+          ctx.fillRect(charX + c, oy + r, 1, 1);
+        }
+      }
+    }
+  }
+}
+
 function drawSkein(ctx: CanvasRenderingContext2D, frame: number) {
+  // Halo first (under the sprite)
   const halo = (Math.sin(frame * 0.06) + 1) * 0.5;
   ctx.fillStyle = `rgba(167,139,250,${(0.18 + halo * 0.22).toFixed(3)})`;
   for (const [dx, dy] of HALO_PIXELS) ctx.fillRect(CX + dx, CY + dy, 1, 1);
@@ -306,7 +271,6 @@ function drawSkein(ctx: CanvasRenderingContext2D, frame: number) {
     ctx.fillRect(ox + cx, oy + cy, 1, 1);
   }
 
-  // Orbiting highlight
   const hlPhase = (frame * 0.08) % (Math.PI * 2);
   const hx = CX + Math.round(Math.cos(hlPhase) * 3);
   const hy = CY + Math.round(Math.sin(hlPhase) * 3);
@@ -314,24 +278,12 @@ function drawSkein(ctx: CanvasRenderingContext2D, frame: number) {
   ctx.fillRect(hx, hy, 1, 1);
 }
 
-// ─────────────────────────────────────────────────────────────
-// Drawing primitives
-// ─────────────────────────────────────────────────────────────
-function rgb(c: number[]) {
-  return `rgb(${c[0]},${c[1]},${c[2]})`;
-}
-function rgba(c: number[], a: number) {
-  return `rgba(${c[0]},${c[1]},${c[2]},${a.toFixed(3)})`;
-}
-
 function drawTrace(ctx: CanvasRenderingContext2D, trace: Trace, hue: number[]) {
-  // Static circuit trace — dim pixels along the whole polyline.
   ctx.fillStyle = rgba(hue, 0.22);
   for (const [x, y] of trace.pixels) ctx.fillRect(x, y, 1, 1);
 }
 
 function drawJunctions(ctx: CanvasRenderingContext2D, trace: Trace, hue: number[]) {
-  // Slightly brighter dot at each elbow + a small ⊕ tick to read as a node.
   ctx.fillStyle = rgba(hue, 0.7);
   for (const [x, y] of trace.elbows) {
     ctx.fillRect(x, y, 1, 1);
@@ -342,52 +294,51 @@ function drawJunctions(ctx: CanvasRenderingContext2D, trace: Trace, hue: number[
   }
 }
 
-function drawLogo(ctx: CanvasRenderingContext2D, sprite: string[], cx: number, cy: number, hue: number[]) {
-  const SZ = 13;
-  const ox = cx - LOGO_HALF;
-  const oy = cy - LOGO_HALF;
-  for (let r = 0; r < SZ; r++) {
-    const row = sprite[r];
-    if (!row) continue;
-    for (let c = 0; c < SZ; c++) {
-      const ch = row[c];
-      if (ch === "." || ch === undefined) continue;
-      ctx.fillStyle = ch === "$" ? rgb(hue) : rgb(FG);
-      ctx.fillRect(ox + c, oy + r, 1, 1);
-    }
-  }
-}
-
+/**
+ * Bidirectional pulse. phase ∈ [0, 2):
+ *   0 ≤ phase < 1: WRITE — pulse travels logo → skein
+ *   1 ≤ phase < 2: READ  — pulse travels skein → logo
+ * Trail always extends behind the head in the direction of motion.
+ * For monochrome threads use a representative hue; for the rainbow
+ * thread (Antigravity) the pulse takes the first stop in its gradient
+ * so it reads as the thread's leading color.
+ */
 function drawPulse(
   ctx: CanvasRenderingContext2D,
   trace: Trace,
   hue: number[],
-  t: number /* 0..1 along polyline */
+  phase: number,
 ) {
   const len = trace.pixels.length;
   if (len === 0) return;
-  const headIdx = Math.min(len - 1, Math.floor(t * len));
 
-  // Pulse trail: brighter pixels at head, dimmer behind.
+  const isRead = phase >= 1;
+  const t = isRead ? 2 - phase : phase; // 0..1, position along trace from logo
+  const headIdx = Math.min(len - 1, Math.max(0, Math.floor(t * (len - 1))));
+  const [hx, hy] = trace.pixels[headIdx];
+
+  // Head — bright FG center pixel
+  ctx.fillStyle = rgb(FG);
+  ctx.fillRect(hx, hy, 1, 1);
+
+  // Plus-shape around head in hue
+  ctx.fillStyle = rgba(hue, 0.85);
+  ctx.fillRect(hx - 1, hy, 1, 1);
+  ctx.fillRect(hx + 1, hy, 1, 1);
+  ctx.fillRect(hx, hy - 1, 1, 1);
+  ctx.fillRect(hx, hy + 1, 1, 1);
+
+  // Trail — extends BEHIND the head in the direction of motion.
+  // For write, motion is +idx, so trail is at idx-i.
+  // For read, motion is -idx, so trail is at idx+i.
   const TRAIL = 6;
-  for (let i = 0; i < TRAIL; i++) {
-    const idx = headIdx - i;
-    if (idx < 0) break;
-    const [x, y] = trace.pixels[idx];
-    if (i === 0) {
-      // Head: bright FG center pixel with hue plus-shape
-      ctx.fillStyle = rgb(FG);
-      ctx.fillRect(x, y, 1, 1);
-      ctx.fillStyle = rgba(hue, 0.85);
-      ctx.fillRect(x - 1, y, 1, 1);
-      ctx.fillRect(x + 1, y, 1, 1);
-      ctx.fillRect(x, y - 1, 1, 1);
-      ctx.fillRect(x, y + 1, 1, 1);
-    } else {
-      const a = (1 - i / TRAIL) * 0.85;
-      ctx.fillStyle = rgba(hue, a);
-      ctx.fillRect(x, y, 1, 1);
-    }
+  for (let i = 1; i < TRAIL; i++) {
+    const trailIdx = isRead ? headIdx + i : headIdx - i;
+    if (trailIdx < 0 || trailIdx >= len) break;
+    const [tx, ty] = trace.pixels[trailIdx];
+    const a = (1 - i / TRAIL) * 0.75;
+    ctx.fillStyle = rgba(hue, a);
+    ctx.fillRect(tx, ty, 1, 1);
   }
 }
 
@@ -411,10 +362,11 @@ export default function PixelLoom() {
     canvas.height = H;
     ctx.imageSmoothingEnabled = false;
 
-    // Per-thread pulse progress 0..1, staggered so all 6 don't pulse in lockstep.
-    const STAGGER = 0.18;
-    const phases: number[] = THREADS.map((_, i) => (i * STAGGER) % 1);
-    const SPEED = 0.0085; // progress per 60fps frame
+    // Per-thread phase ∈ [0, 2), staggered so writes and reads
+    // are interleaved across the mesh at any moment.
+    const STAGGER = 0.33;
+    const phases: number[] = THREADS.map((_, i) => (i * STAGGER) % 2);
+    const SPEED = 0.0095; // progress per 60fps frame
 
     let frame = 0;
     let last = performance.now();
@@ -426,30 +378,39 @@ export default function PixelLoom() {
 
       ctx.clearRect(0, 0, W, H);
 
-      // 1. Static circuit traces (dim, like printed PCB ink)
+      // 1. Static traces
       for (let i = 0; i < THREADS.length; i++) {
-        drawTrace(ctx, TRACES[i], THREADS[i].hue);
+        const hue = isMulticolor(THREADS[i].color)
+          ? (THREADS[i].color as number[][])[0]
+          : (THREADS[i].color as number[]);
+        drawTrace(ctx, TRACES[i], hue);
       }
 
-      // 2. Junction dots at elbows
+      // 2. Elbow junctions
       for (let i = 0; i < THREADS.length; i++) {
-        drawJunctions(ctx, TRACES[i], THREADS[i].hue);
+        const hue = isMulticolor(THREADS[i].color)
+          ? (THREADS[i].color as number[][])[0]
+          : (THREADS[i].color as number[]);
+        drawJunctions(ctx, TRACES[i], hue);
       }
 
-      // 3. Agent logos at the right edge
+      // 3. Text labels at compass positions
       for (let i = 0; i < THREADS.length; i++) {
         const t = THREADS[i];
-        drawLogo(ctx, LOGOS[t.id], t.x, t.y, t.hue);
+        drawText(ctx, t.label, t.x, t.y, t.color);
       }
 
-      // 4. Skein at the center
+      // 4. Skein at center
       drawSkein(ctx, frame);
 
-      // 5. Bright pulses traveling along the traces (drawn last so they sit on top)
+      // 5. Bidirectional pulses (drawn last so they sit on top)
       for (let i = 0; i < THREADS.length; i++) {
         phases[i] += SPEED * (dt / 16.67);
-        if (phases[i] >= 1) phases[i] = 0;
-        drawPulse(ctx, TRACES[i], THREADS[i].hue, phases[i]);
+        if (phases[i] >= 2) phases[i] -= 2;
+        const hue = isMulticolor(THREADS[i].color)
+          ? (THREADS[i].color as number[][])[0]
+          : (THREADS[i].color as number[]);
+        drawPulse(ctx, TRACES[i], hue, phases[i]);
       }
 
       if (!reduceMotion) {
@@ -478,8 +439,7 @@ export default function PixelLoom() {
         className="w-full h-full"
         style={{ imageRendering: "pixelated" }}
       />
-      {/* Screen-reader-only labels — the pixelated logos are decorative
-          to AT, but the agent list still needs to be discoverable. */}
+      {/* Screen-reader-only client list — labels in canvas are decorative to AT. */}
       <ul className="sr-only">
         <li>Claude Code</li>
         <li>Cursor</li>
