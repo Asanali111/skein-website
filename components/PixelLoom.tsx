@@ -60,41 +60,44 @@ type Thread = {
   y: number;
   /** CSS size of the rendered <img>. Base was 3rem; per-brand bumps live here. */
   sizeRem: string;
+  /** CSS size of the radial-gradient glow drawn behind the <img>. */
+  glowRem: string;
+  /** Glow center alpha. Higher for low-contrast marks; 0 disables the glow. */
+  glowAlpha: number;
   route: [number, number][];
 };
 
 const THREADS: Thread[] = [
-  // N — CLAUDE DESKTOP, straight vertical drop  (+100% size)
+  // N — CLAUDE DESKTOP, straight vertical drop. (+100% size)
   { id: "claude-desktop", label: "CLAUDE", imgSrc: "/logos/claude_desktop.png", color: C_CLAUDE,
-    x: 80, y: 22, sizeRem: "6rem",
+    x: 80, y: 22, sizeRem: "6rem", glowRem: "9rem", glowAlpha: 0.10,
     route: [[80, 27], [80, 54]] },
 
-  // NE — CURSOR, west into elbow, then south to skein top  (+100% size)
+  // NE — CURSOR. (+100% size)
   { id: "cursor", label: "CURSOR", imgSrc: "/logos/cursor.png", color: C_CURSOR,
-    x: 114, y: 42, sizeRem: "6rem",
+    x: 114, y: 42, sizeRem: "6rem", glowRem: "9rem", glowAlpha: 0.08,
     route: [[99, 42], [84, 42], [84, 54]] },
 
-  // SE — CODEX, west into elbow, then north to skein bottom  (+100% size)
+  // SE — CODEX. (+100% size)
   { id: "codex", label: "CODEX", imgSrc: "/logos/codex.png", color: C_CODEX,
-    x: 114, y: 78, sizeRem: "6rem",
+    x: 114, y: 78, sizeRem: "6rem", glowRem: "9rem", glowAlpha: 0.10,
     route: [[101, 78], [84, 78], [84, 66]] },
 
-  // S — OPENCODE (swapped from NW): straight vertical rise.
-  // +150% size, plus a subtle radial-gradient glow behind it (added
-  // separately in the JSX) since the mark is low-contrast on the dark bg.
+  // S — OPENCODE (swapped from NW). Largest mark on the page;
+  // strongest glow because the logo itself is the lowest-contrast.
   { id: "opencode", label: "OPENCODE", imgSrc: "/logos/opencode.png", color: C_OPENCODE,
-    x: 80, y: 100, sizeRem: "7.5rem",
+    x: 80, y: 100, sizeRem: "9rem", glowRem: "13rem", glowAlpha: 0.20,
     route: [[80, 95], [80, 66]] },
 
-  // SW — ANTIGRAV (rainbow), east into elbow, then north to skein bottom  (+100% size)
+  // SW — ANTIGRAV (rainbow). Glow uses a single representative stop
+  // from the gradient — picked from the gradient mid (purple-pink).
   { id: "antigravity", label: "ANTIGRAV", imgSrc: "/logos/antigravity_logo.png", color: C_ANTIGRAV,
-    x: 44, y: 78, sizeRem: "6rem",
+    x: 44, y: 78, sizeRem: "6rem", glowRem: "9rem", glowAlpha: 0.10,
     route: [[64, 78], [76, 78], [76, 66]] },
 
-  // NW — VS CODE (swapped from S): east into elbow, then south to skein top.
-  // +20% size only — its mark is bold and reads clearly at small scale.
+  // NW — VS CODE (swapped from S). (+20% size only.)
   { id: "vscode", label: "VS CODE", imgSrc: "/logos/vscode.png", color: C_VSCODE,
-    x: 44, y: 42, sizeRem: "3.6rem",
+    x: 44, y: 42, sizeRem: "3.6rem", glowRem: "6rem", glowAlpha: 0.10,
     route: [[64, 42], [76, 42], [76, 54]] },
 ];
 
@@ -367,27 +370,37 @@ export default function PixelLoom() {
         className="absolute inset-0 w-full h-full"
         style={{ imageRendering: "pixelated" }}
       />
-      {/* Subtle radial-gradient glow behind opencode — the only mark whose
-          contrast against the warm-dark bg is too low to read on its own. */}
-      {(() => {
-        const oc = THREADS.find((t) => t.id === "opencode");
-        if (!oc) return null;
+      {/* Per-thread radial-gradient glows — drawn before the imgs so each
+          logo sits over a brand-tinted halo that lifts it off the warm-dark
+          bg. Glow color samples from the thread's accent color; alpha is
+          tuned per-brand (opencode strongest because its mark is grayscale,
+          cursor lightest because its mark is already near-white). */}
+      {THREADS.map((t) => {
+        if (t.glowAlpha <= 0) return null;
+        // Pick a single representative color for the glow. For rainbow
+        // (multicolor) gradients, take the middle stop so the halo reads
+        // as one tint, not a chromatic ring.
+        const glowColor = isMulticolor(t.color)
+          ? (t.color as number[][])[Math.floor((t.color as number[][]).length / 2)]
+          : (t.color as number[]);
+        const center = `rgba(${glowColor[0]}, ${glowColor[1]}, ${glowColor[2]}, ${t.glowAlpha.toFixed(3)})`;
+        const mid = `rgba(${glowColor[0]}, ${glowColor[1]}, ${glowColor[2]}, ${(t.glowAlpha * 0.35).toFixed(3)})`;
         return (
           <div
+            key={`glow-${t.id}`}
             aria-hidden
             className="absolute pointer-events-none"
             style={{
-              left: `${(oc.x / W) * 100}%`,
-              top: `${(oc.y / H) * 100}%`,
-              width: "10rem",
-              height: "10rem",
+              left: `${(t.x / W) * 100}%`,
+              top: `${(t.y / H) * 100}%`,
+              width: t.glowRem,
+              height: t.glowRem,
               transform: "translate(-50%, -50%)",
-              background:
-                "radial-gradient(circle, rgba(243, 239, 231, 0.14) 0%, rgba(243, 239, 231, 0.05) 40%, transparent 70%)",
+              background: `radial-gradient(circle, ${center} 0%, ${mid} 40%, transparent 70%)`,
             }}
           />
         );
-      })()}
+      })}
 
       {THREADS.map((t) => (
         <img
