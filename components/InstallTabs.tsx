@@ -16,20 +16,26 @@ const TABS: Tab[] = [
     id: "pipx",
     label: "pipx",
     command: "pipx install skn && skein up",
-    note: "Recommended — isolated env, auto-PATH, single command works on a clean machine.",
+    note: "Recommended on macOS / Linux — isolated env, auto-PATH, single command works on a clean machine.",
     recommended: true,
   },
   {
     id: "uv",
     label: "uv",
     command: "uv tool install skn && skein up",
-    note: "Fastest install path if you already have uv.",
+    note: "Fastest install path if you already have uv. Cross-platform.",
   },
   {
     id: "pip",
     label: "pip",
     command: "pip install --user skn && hash -r && skein up",
     note: "Plain pip works but needs a PATH refresh — that's what `hash -r` does. Prefer pipx.",
+  },
+  {
+    id: "windows",
+    label: "Windows",
+    command: "py -m pip install --user skn; skein up",
+    note: "PowerShell. `skein up` registers a Scheduled Task at user logon so the daemon auto-starts after reboot (no admin needed). State lives in %APPDATA%\\skein\\.",
   },
   {
     id: "brew",
