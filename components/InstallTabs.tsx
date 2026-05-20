@@ -37,13 +37,6 @@ const TABS: Tab[] = [
     command: "py -m pip install --user skn; skein up",
     note: "PowerShell. `skein up` registers a Scheduled Task at user logon so the daemon auto-starts after reboot (no admin needed). State lives in %APPDATA%\\skein\\.",
   },
-  {
-    id: "brew",
-    label: "brew",
-    command: "brew install skn  # coming soon",
-    note: "Homebrew tap pending. Use pipx for now.",
-    disabled: true,
-  },
 ];
 
 type Props = {
