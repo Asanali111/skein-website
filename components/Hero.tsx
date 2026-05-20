@@ -32,7 +32,8 @@ export default function Hero() {
 
         <div className="flex flex-wrap items-center gap-5 pt-6 border-t border-divider font-mono text-xs text-fg-1">
           <span className="text-fg-2">
-            MIT · runs on <code className="text-fg-1">127.0.0.1</code> · zero telemetry
+            Apache 2.0 · free forever · runs on{" "}
+            <code className="text-fg-1">127.0.0.1</code> · zero telemetry
           </span>
           <VersionBadge>v0.1.0</VersionBadge>
         </div>

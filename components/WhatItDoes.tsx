@@ -17,41 +17,65 @@ export default function WhatItDoes() {
           <LiveTerminal />
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card>
-            <CardLabel>cross-session handoff</CardLabel>
-            <CardTitle>Claude wrote it. Cursor recalls it.</CardTitle>
-            <CardBody>
-              Every decision, fact, and observation flows through one local bus.
-              Switch tools mid-task without losing context.
-            </CardBody>
-          </Card>
+        <Card>
+          <CardLabel>cross-session handoff · live example</CardLabel>
+          <CardTitle>Claude wrote it. Cursor already knows.</CardTitle>
+          <CardBody>
+            Every decision, fact, and observation flows through one local bus.
+            Switch tools mid-task — the next one picks up where the last one left off.
+          </CardBody>
 
-          <Card>
-            <CardLabel>bench · preview</CardLabel>
-            <div className="flex items-end gap-6 mb-3">
-              <div className="flex items-end">
-                <span className="stat text-[2.25rem] text-fg-0">14ms</span>
-                <span className="font-mono text-sm text-fg-2 ml-1 mb-1">recall p50</span>
+          <div className="mt-5 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-stretch gap-3 md:gap-4">
+            <div className="bg-bg-2 border border-divider rounded-md p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#cc785c]" aria-hidden />
+                <span className="font-mono text-[0.625rem] tracking-[0.12em] uppercase text-fg-2">
+                  claude code · 10:24 am
+                </span>
               </div>
-              <div className="flex items-end">
-                <span className="stat text-[2.25rem] text-fg-0">0.89</span>
-                <span className="font-mono text-sm text-fg-2 ml-1 mb-1">hit@5</span>
-              </div>
+              <p className="font-mono text-[0.8125rem] leading-[1.55] text-fg-1">
+                <span className="text-fg-3">{`> `}</span>
+                <span className="text-spark">remember</span>
+                <span className="text-fg-2">(</span>
+                &quot;use <span className="text-fg-0">authV2</span> — old one drops sessions on retry&quot;
+                <span className="text-fg-2">)</span>
+              </p>
             </div>
-            <CardBody>
-              Local-only, no cloud round-trip. Numbers from an internal eval on a 706-chunk
-              corpus.
-            </CardBody>
-            <p className="mt-3 font-mono text-[0.6875rem] text-fg-3 leading-[1.5]">
-              Full methodology and reproducibility scripts at{" "}
-              <a href="/bench" className="text-fg-2 hover:text-fg-0 underline decoration-divider hover:decoration-primary">
-                /bench
-              </a>
-              .
-            </p>
-          </Card>
-        </div>
+
+            <div className="hidden md:flex flex-col items-center justify-center text-fg-3">
+              <span className="font-mono text-[0.625rem] tracking-[0.12em] uppercase mb-1">
+                127.0.0.1
+              </span>
+              <span aria-hidden className="text-lg">→</span>
+            </div>
+            <div className="md:hidden flex items-center justify-center text-fg-3 my-1">
+              <span aria-hidden>↓</span>
+              <span className="font-mono text-[0.625rem] tracking-[0.12em] uppercase ml-2">
+                127.0.0.1
+              </span>
+            </div>
+
+            <div className="bg-bg-2 border border-divider rounded-md p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#5fb3b3]" aria-hidden />
+                <span className="font-mono text-[0.625rem] tracking-[0.12em] uppercase text-fg-2">
+                  cursor · 10:53 am · new session
+                </span>
+              </div>
+              <p className="font-mono text-[0.8125rem] leading-[1.55] text-fg-1">
+                <span className="text-fg-3">{`> `}</span>
+                <span className="text-spark">recall</span>
+                <span className="text-fg-2">(</span>&quot;auth retry&quot;<span className="text-fg-2">)</span>
+                <br />
+                <span className="text-fg-3">  →</span> use <span className="text-fg-0">authV2</span> — old one drops sessions on retry
+              </p>
+            </div>
+          </div>
+
+          <p className="mt-4 font-mono text-[0.6875rem] text-fg-3">
+            no copy-paste · no cloud round-trip · no &quot;catch me up on what we did&quot;
+          </p>
+        </Card>
       </div>
     </section>
   );
