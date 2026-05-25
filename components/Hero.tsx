@@ -35,7 +35,7 @@ export default function Hero() {
             Apache 2.0 · free forever · runs on{" "}
             <code className="text-fg-1">127.0.0.1</code> · zero telemetry
           </span>
-          <VersionBadge>v0.1.0</VersionBadge>
+          <VersionBadge>v0.2.0</VersionBadge>
         </div>
       </div>
     </section>

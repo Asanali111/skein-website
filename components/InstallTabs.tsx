@@ -13,11 +13,17 @@ type Tab = {
 
 const TABS: Tab[] = [
   {
+    id: "brew",
+    label: "brew",
+    command: "brew install asanali111/skein/skein && skein up",
+    note: "Recommended on macOS. Self-contained Python venv; brew handles updates via `brew upgrade skein`.",
+    recommended: true,
+  },
+  {
     id: "pipx",
     label: "pipx",
     command: "pipx install skn && skein up",
-    note: "Recommended on macOS / Linux — isolated env, auto-PATH, single command works on a clean machine.",
-    recommended: true,
+    note: "Cross-platform — isolated env, auto-PATH, single command works on a clean machine.",
   },
   {
     id: "uv",
@@ -29,7 +35,7 @@ const TABS: Tab[] = [
     id: "pip",
     label: "pip",
     command: "pip install --user skn && hash -r && skein up",
-    note: "Plain pip works but needs a PATH refresh — that's what `hash -r` does. Prefer pipx.",
+    note: "Plain pip works but needs a PATH refresh — that's what `hash -r` does. Prefer brew or pipx.",
   },
   {
     id: "windows",
@@ -44,7 +50,7 @@ type Props = {
 };
 
 export default function InstallTabs({ className = "" }: Props) {
-  const [activeId, setActiveId] = useState<string>("pipx");
+  const [activeId, setActiveId] = useState<string>("brew");
   const [copied, setCopied] = useState(false);
 
   const active = TABS.find((t) => t.id === activeId) ?? TABS[0];

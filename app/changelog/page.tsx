@@ -27,6 +27,75 @@ const KIND_STYLE: Record<EntryKind, { label: string; cls: string }> = {
 
 const ENTRIES: Entry[] = [
   {
+    iter: "iter 35",
+    date: "2026-05-25",
+    kind: "feature",
+    title: "browser extension graduates · recall outcome telemetry · v0.2.0",
+    body:
+      "The browser extension exits experiment/ — defaults to the prod daemon on 127.0.0.1:8765, ships with a Save-to-Skein button on every assistant turn (claude.ai, chatgpt.com, gemini.google.com), and the popup gets a real query input. On the daemon: every recall now mints a recall_id; remember() and note() accept a from_recall arg, and Skein learns which recalls actually produced useful writes. Doctor surfaces a new \"recall→write rate (24h)\" line. Apache 2.0 LICENSE + NOTICE files land alongside the badge (long overdue).",
+    highlights: [
+      { label: "tests", value: "641 passing" },
+      { label: "extension sites", value: "3 (claude / chatgpt / gemini)" },
+      { label: "new MCP arg", value: "from_recall on remember + note" },
+    ],
+  },
+  {
+    iter: "iter 34",
+    date: "2026-05-23",
+    kind: "feature",
+    title: "value-aware inbox · doctor gets-better indicators",
+    body:
+      "The inbox auto-approve sweep gains a per-source-tool value floor: transcript-extracted mid-sentence noise at confidence 0.62 used to sit pending for the full 14-day reject window before draining. Now it rejects on the first sweep — 133/141 noise captures drained immediately, not after two weeks. Doctor renders three new \"gets better\" signals: recall coverage % (touched/live × median hits), inbox drain rate (7d), and per-fragment recency.",
+  },
+  {
+    iter: "iter 33",
+    date: "2026-05-22",
+    kind: "feature",
+    title: "skein update · PyPI pipeline · CLI deletion phase D",
+    body:
+      "`skein update` detects how Skein was installed (pipx / uv / pip / editable) and runs the right upgrade, then restarts the daemon. Non-blocking 24h PyPI check surfaces an \"⬆ Update available\" banner in skein status + doctor. CI auto-publishes to PyPI when pyproject.toml bumps. CLI deletion phase D removes the 21 hidden commands that survived iter 26 — visible surface stays at 10. Browser extension ports to chatgpt.com + gemini.google.com via the iter-32 content_common.js refactor.",
+    highlights: [
+      { label: "cli.py", value: "4417 → 2357 lines" },
+      { label: "visible commands", value: "10 (unchanged)" },
+    ],
+  },
+  {
+    iter: "iter 32",
+    date: "2026-05-21",
+    kind: "feature",
+    title: "structural capture · the LLM stops forgetting to write",
+    body:
+      "Writing to Skein no longer requires LLM diligence. Git auto-capture watches all branches (not just main) and grades commit-message structure; transcript watcher defaults on with a smart-only filter that picks up \"Iter N shipped\" / \"Decided to X\" lines and auto-promotes them at 0.92. A one-arg note(content) MCP tool replaces the type/tags ceremony for the few writes that still need an LLM. Recall responses gain a [skein:relevance=high|medium|low|none] marker so the browser extension can skip injection when there's nothing useful to send.",
+  },
+  {
+    iter: "iter 31",
+    date: "2026-05-21",
+    kind: "perf",
+    title: "efficiency pass · ~15× token drop per recall",
+    body:
+      "Snippet rendering by default (~80 tokens/fragment, down from ~750), a 30-second LRU on identical recall queries, real content-hash dedupe on writes, recency decay so stale fragments sunset out of the top-K, and behavioural value (recall_hits + last_recalled_at columns) that surfaces fragments actually being used. ONNX provider unloads after 5 min idle to keep daemon RSS bounded; SQLite cache/mmap trimmed 4×.",
+    highlights: [
+      { label: "tokens per recall", value: "~750 → ~50 (15×)" },
+      { label: "duplicate write cost", value: "~5ms → ~0.3ms" },
+    ],
+  },
+  {
+    iter: "iter 30",
+    date: "2026-05-21",
+    kind: "feature",
+    title: "browser extension v0 · context inside claude.ai",
+    body:
+      "Skein lives inside browser LLMs too. New /v1/pair-browser daemon endpoint pairs an MV3 Chromium extension with the local daemon (loopback-only + Origin regex). Content script intercepts Enter on claude.ai, recalls relevant context, prepends a [Skein context — auto-injected] block before submission. Shipped behind experiment/browser-extension; graduates to main in iter 35.",
+  },
+  {
+    iter: "iter 29",
+    date: "2026-05-20",
+    kind: "feature",
+    title: "day-one bundle · fresh user experience",
+    body:
+      "Lifespan task warms fastembed at boot (first recall after restart ≈200ms instead of 7–8s). MCP initialize.instructions builds a dynamic greeting from current store state — empty stores get cold-start guidance, populated-but-quiet ones get a skein-connect upsell. Docs watcher picks up AGENTS.md, CLAUDE.md, .cursor/rules, .clinerules, .windsurfrules, and copilot-instructions. Empty-recall reword: instead of \"Found 0 fragments\" we say \"Skein has N fragments in this scope, none semantically related to your query.\"",
+  },
+  {
     iter: "iter 28",
     date: "2026-05-20",
     kind: "perf",
