@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
  * PixelLoom — chunky pixel-art hero animation with full-color logo overlays.
  *
  * The 160×120 canvas (scaled up with `image-rendering: pixelated`) draws the
- * traces, elbow junctions, animated skein, and bidirectional pulses. The
+ * traces, elbow junctions, animated wevex, and bidirectional pulses. The
  * client logos are NOT drawn into the canvas — downscaling 500-2048px PNGs
  * into an 18×18 logical grid destroyed too much detail. Instead each logo
  * is an HTML `<img>` positioned absolutely over the canvas at the same
@@ -46,7 +46,7 @@ const C_ANTIGRAV: number[][] = [
 // Six threads. Each declares its agent id, brand label, color
 // (drives trace + pulse hue), logo center (x, y) in logical canvas
 // coords, the PNG src, and the polyline route from the logo edge
-// to the skein border.
+// to the wevex border.
 // Routes are strictly orthogonal — every elbow is a 90° turn.
 // Compass layout: N top, NE upper-right, SE lower-right,
 // S bottom, SW lower-left, NW upper-left.
@@ -141,10 +141,10 @@ function walkRoute(route: [number, number][]): Trace {
 const TRACES: Trace[] = THREADS.map((t) => walkRoute(t.route));
 
 // ─────────────────────────────────────────────────────────────
-// Skein sprite (11×11). Outer ring = bright FG, shell = PRIMARY_HI,
+// Wevex sprite (11×11). Outer ring = bright FG, shell = PRIMARY_HI,
 // inner rotating loops = PRIMARY.
 // ─────────────────────────────────────────────────────────────
-const SKEIN_BASE = [
+const WEVEX_BASE = [
   "...#####...",
   ".##$$$$$##.",
   ".#$$$$$$$#.",
@@ -158,7 +158,7 @@ const SKEIN_BASE = [
   "...#####...",
 ];
 
-const SKEIN_LOOPS: [number, number][][] = [
+const WEVEX_LOOPS: [number, number][][] = [
   [[3,3],[4,3],[5,3],[6,3],[7,3], [3,7],[4,7],[5,7],[6,7],[7,7], [3,4],[3,5],[3,6], [7,4],[7,5],[7,6]],
   [[4,2],[5,2],[6,2], [4,8],[5,8],[6,8], [2,4],[2,5],[2,6], [8,4],[8,5],[8,6], [3,3],[7,3],[3,7],[7,7]],
   [[3,3],[4,3],[5,3],[6,3],[7,3], [3,7],[4,7],[5,7],[6,7],[7,7], [3,4],[3,5],[3,6], [7,4],[7,5],[7,6]].map(([x,y])=>[y,x]) as [number,number][],
@@ -194,7 +194,7 @@ function isMulticolor(color: number[] | number[][]): color is number[][] {
   return Array.isArray(color[0]);
 }
 
-function drawSkein(ctx: CanvasRenderingContext2D, frame: number) {
+function drawWevex(ctx: CanvasRenderingContext2D, frame: number) {
   // Halo first (under the sprite)
   const halo = (Math.sin(frame * 0.06) + 1) * 0.5;
   ctx.fillStyle = `rgba(167,139,250,${(0.18 + halo * 0.22).toFixed(3)})`;
@@ -205,7 +205,7 @@ function drawSkein(ctx: CanvasRenderingContext2D, frame: number) {
   const oy = CY - 5;
 
   for (let r = 0; r < SZ; r++) {
-    const row = SKEIN_BASE[r];
+    const row = WEVEX_BASE[r];
     for (let c = 0; c < SZ; c++) {
       const ch = row[c];
       if (ch === ".") continue;
@@ -216,7 +216,7 @@ function drawSkein(ctx: CanvasRenderingContext2D, frame: number) {
 
   const phase = Math.floor(frame / 18) % 4;
   ctx.fillStyle = rgb(PRIMARY);
-  for (const [cx, cy] of SKEIN_LOOPS[phase]) {
+  for (const [cx, cy] of WEVEX_LOOPS[phase]) {
     ctx.fillRect(ox + cx, oy + cy, 1, 1);
   }
 
@@ -245,8 +245,8 @@ function drawJunctions(ctx: CanvasRenderingContext2D, trace: Trace, hue: number[
 
 /**
  * Bidirectional pulse. phase ∈ [0, 2):
- *   0 ≤ phase < 1: WRITE — pulse travels logo → skein
- *   1 ≤ phase < 2: READ  — pulse travels skein → logo
+ *   0 ≤ phase < 1: WRITE — pulse travels logo → wevex
+ *   1 ≤ phase < 2: READ  — pulse travels wevex → logo
  * Trail always extends behind the head in the direction of motion.
  * For monochrome threads use a representative hue; for the rainbow
  * thread (Antigravity) the pulse takes the first stop in its gradient
@@ -343,8 +343,8 @@ export default function PixelLoom() {
         drawJunctions(ctx, TRACES[i], hue);
       }
 
-      // 3. Skein at center (logos render as HTML overlays — see JSX below)
-      drawSkein(ctx, frame);
+      // 3. Wevex at center (logos render as HTML overlays — see JSX below)
+      drawWevex(ctx, frame);
 
       // 4. Bidirectional pulses (drawn last so they sit on top)
       for (let i = 0; i < THREADS.length; i++) {

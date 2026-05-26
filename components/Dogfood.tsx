@@ -7,14 +7,14 @@ export default function Dogfood() {
             same project · same prompt · same MCP wired in
           </p>
           <h2 className="tagline text-2xl sm:text-3xl text-fg-0 mb-3">
-            We rewrote the framing. Every client picked Skein first.
+            We rewrote the framing. Every client picked Wevex first.
           </h2>
           <p className="text-fg-1 leading-[1.55]">
             Before iter 18, agents would default to{" "}
-            <code className="font-mono text-fg-0">read_file</code> even with Skein installed.
+            <code className="font-mono text-fg-0">read_file</code> even with Wevex installed.
             We rewrote the MCP tool descriptions as promises with cost numbers and led
             <code className="font-mono text-fg-0"> AGENTS.md</code> with{" "}
-            <code className="font-mono text-fg-0">&quot;use Skein first&quot;</code>. Same
+            <code className="font-mono text-fg-0">&quot;use Wevex first&quot;</code>. Same
             product, same APIs — the framing flipped behaviour across every client.
           </p>
         </div>
@@ -28,7 +28,7 @@ export default function Dogfood() {
               baseline · any client
             </div>
             <h3 className="card-title text-xl text-fg-0 mb-4">
-              Five file reads. Never called Skein.
+              Five file reads. Never called Wevex.
             </h3>
             <ol className="font-mono text-[0.8125rem] text-fg-1 space-y-1 leading-relaxed">
               <li><span className="text-fg-3 mr-2">1.</span>Read README.md</li>
@@ -48,11 +48,11 @@ export default function Dogfood() {
               claude · cursor · gemini cli · codex
             </div>
             <h3 className="card-title text-xl text-fg-0 mb-4">
-              Skein first. Source second.
+              Wevex first. Source second.
             </h3>
             <ol className="font-mono text-[0.8125rem] text-fg-1 space-y-1 leading-relaxed">
-              <li><span className="text-fg-3 mr-2">1.</span><span className="text-spark">mcp__skein__project_briefing</span></li>
-              <li><span className="text-fg-3 mr-2">2.</span><span className="text-spark">mcp__skein__recall</span></li>
+              <li><span className="text-fg-3 mr-2">1.</span><span className="text-spark">mcp__wevex__project_briefing</span></li>
+              <li><span className="text-fg-3 mr-2">2.</span><span className="text-spark">mcp__wevex__recall</span></li>
               <li><span className="text-fg-3 mr-2">3.</span>Read storage.py <span className="text-fg-3">(only the file the briefing pointed to)</span></li>
               <li className="pt-1 text-fg-2">→ <span className="text-fg-0">~400 tokens, one round-trip, kept the why</span></li>
             </ol>
@@ -60,7 +60,7 @@ export default function Dogfood() {
         </div>
 
         <blockquote className="quote-serif text-fg-0 text-lg sm:text-xl border-l-2 border-primary pl-4 mt-7 max-w-[44rem]">
-          Let me start by calling the Skein tools as instructed (project_briefing
+          Let me start by calling the Wevex tools as instructed (project_briefing
           and recall), then also look at the actual codebase.
         </blockquote>
         <p className="mt-2 font-mono text-[0.75rem] text-fg-2 max-w-[44rem]">
@@ -70,7 +70,7 @@ export default function Dogfood() {
 
         <p className="mt-6">
           <a
-            href="https://github.com/Asanali111/skein/blob/main/docs/dogfood-iter-18.md"
+            href="https://github.com/Asanali111/wevex/blob/main/docs/dogfood-iter-18.md"
             target="_blank"
             rel="noopener noreferrer"
             className="font-mono text-xs text-fg-2 hover:text-primary underline decoration-divider hover:decoration-primary"

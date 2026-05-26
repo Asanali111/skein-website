@@ -24,20 +24,20 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Skein — one memory across every coding LLM",
+  title: "Wevex — one memory across every coding LLM",
   description:
     "Local-first context bus for Claude Desktop, Cursor, Codex, VS Code, Antigravity, opencode, and more. No vendor lock-in. No cloud round-trip. The daemon runs on 127.0.0.1.",
-  metadataBase: new URL("https://skein.dev"),
+  metadataBase: new URL("https://wevex.dev"),
   openGraph: {
-    title: "Skein",
+    title: "Wevex",
     description:
       "Local-first context bus for Claude Desktop, Cursor, Codex, VS Code, Antigravity, opencode, and more. MIT, runs on 127.0.0.1.",
     type: "website",
-    url: "https://skein.dev",
+    url: "https://wevex.dev",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Skein — one memory across every coding LLM",
+    title: "Wevex — one memory across every coding LLM",
     description:
       "Local-first context bus for every coding LLM. MIT, runs on 127.0.0.1.",
   },
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   },
 };
 
-const themeInit = `(function(){try{var s=localStorage.getItem('skein-theme');var t=s==='light'?'light':'dark';document.documentElement.classList.add(t);document.documentElement.dataset.theme=t;}catch(e){document.documentElement.classList.add('dark');}})();`;
+const themeInit = `(function(){try{var s=localStorage.getItem('wevex-theme');var t=s==='light'?'light':'dark';document.documentElement.classList.add(t);document.documentElement.dataset.theme=t;}catch(e){document.documentElement.classList.add('dark');}})();`;
 
 export default function RootLayout({
   children,

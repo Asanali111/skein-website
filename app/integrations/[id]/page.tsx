@@ -17,10 +17,10 @@ export async function generateMetadata({
 }) {
   const { id } = await params;
   const c = getClient(id);
-  if (!c) return { title: "Integration — Skein" };
+  if (!c) return { title: "Integration — Wevex" };
   return {
-    title: `${c.name} + Skein`,
-    description: `Skein gives ${c.name} durable cross-session memory. ${c.blurb}`,
+    title: `${c.name} + Wevex`,
+    description: `Wevex gives ${c.name} durable cross-session memory. ${c.blurb}`,
   };
 }
 
@@ -51,7 +51,7 @@ export default async function IntegrationPage({
           {client.name}
         </h1>
         <p className="tagline text-xl text-fg-0 max-w-[36rem]">
-          Skein gives {client.name} durable cross-session memory.
+          Wevex gives {client.name} durable cross-session memory.
         </p>
         <p className="mt-3 text-[0.9375rem] text-fg-1 max-w-[36rem] leading-[1.55]">
           {client.blurb}
@@ -75,16 +75,16 @@ export default async function IntegrationPage({
 
         <details className="mt-8 group">
           <summary className="cursor-pointer font-mono text-xs tracking-[0.04em] uppercase text-fg-2 hover:text-fg-0 transition-colors select-none">
-            don&apos;t have <code className="font-mono">skein</code> yet?
+            don&apos;t have <code className="font-mono">wevex</code> yet?
           </summary>
           <div className="mt-3 max-w-[44rem] text-sm text-fg-1 leading-[1.6]">
             <p>Install the daemon first:</p>
             <div className="mt-2 overflow-x-auto">
-              <InstallBox command="pip install skn && skein up" />
+              <InstallBox command="pip install wevex && wevex up" />
             </div>
             <p className="mt-2 text-fg-2 text-[0.8125rem]">
               The daemon binds to <code className="font-mono text-fg-0">127.0.0.1:8765</code> and
-              prints a bearer token. Use <code className="font-mono text-fg-0">skein doctor</code>{" "}
+              prints a bearer token. Use <code className="font-mono text-fg-0">wevex doctor</code>{" "}
               to retrieve it later.
             </p>
           </div>
@@ -99,8 +99,8 @@ export default async function IntegrationPage({
           </div>
           <p className="text-sm text-fg-2 max-w-[28rem]">
             Iter 22.1 — capture of {client.name} calling{" "}
-            <code className="font-mono text-fg-1">mcp__skein__recall</code> and{" "}
-            <code className="font-mono text-fg-1">mcp__skein__project_briefing</code>{" "}
+            <code className="font-mono text-fg-1">mcp__wevex__recall</code> and{" "}
+            <code className="font-mono text-fg-1">mcp__wevex__project_briefing</code>{" "}
             on a real session.
           </p>
         </div>
@@ -117,9 +117,9 @@ export default async function IntegrationPage({
               {client.config.content}
             </pre>
             <p className="mt-4 max-w-[44rem] text-[0.8125rem] text-fg-2 leading-[1.55]">
-              <code className="font-mono text-fg-1">$SKEIN_TOKEN</code> is the bearer token
-              printed by <code className="font-mono text-fg-1">skein up</code>. Run{" "}
-              <code className="font-mono text-fg-1">skein doctor</code> to retrieve it
+              <code className="font-mono text-fg-1">$WEVEX_TOKEN</code> is the bearer token
+              printed by <code className="font-mono text-fg-1">wevex up</code>. Run{" "}
+              <code className="font-mono text-fg-1">wevex doctor</code> to retrieve it
               at any time — the daemon never leaves <code className="font-mono text-fg-1">127.0.0.1</code>.
             </p>
           </section>

@@ -20,7 +20,7 @@ export default function ThemeToggle() {
     document.documentElement.classList.add(next);
     document.documentElement.dataset.theme = next;
     try {
-      localStorage.setItem("skein-theme", next);
+      localStorage.setItem("wevex-theme", next);
     } catch {}
     setTheme(next);
   };

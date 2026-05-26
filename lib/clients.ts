@@ -18,7 +18,7 @@ export type Client = {
   config?: ClientInstall;
 };
 
-const SKEIN_URL = "http://127.0.0.1:8765/mcp";
+const WEVEX_URL = "http://127.0.0.1:8765/mcp";
 
 export const CLIENTS: Client[] = [
   {
@@ -27,7 +27,7 @@ export const CLIENTS: Client[] = [
     blurb: "Anthropic's Desktop App. Shared memory across every Claude session.",
     install: {
       kind: "command",
-      cmd: `skein connect claude-desktop`,
+      cmd: `wevex connect claude-desktop`,
       note: "Writes `claude_desktop_config.json` in the app directory.",
     },
     config: {
@@ -36,9 +36,9 @@ export const CLIENTS: Client[] = [
       lang: "json",
       content: `{
   "mcpServers": {
-    "skein": {
+    "wevex": {
       "command": "npx",
-      "args": ["-y", "@skein/mcp-server"]
+      "args": ["-y", "@wevex/mcp-server"]
     }
   }
 }`,
@@ -47,10 +47,10 @@ export const CLIENTS: Client[] = [
   {
     id: "cursor",
     name: "Cursor",
-    blurb: "AI-first IDE. Skein writes a per-project `.cursor/mcp.json`.",
+    blurb: "AI-first IDE. Wevex writes a per-project `.cursor/mcp.json`.",
     install: {
       kind: "command",
-      cmd: "skein connect cursor",
+      cmd: "wevex connect cursor",
       note: "Writes `.cursor/mcp.json` in the current project.",
     },
     config: {
@@ -59,11 +59,11 @@ export const CLIENTS: Client[] = [
       lang: "json",
       content: `{
   "mcpServers": {
-    "skein": {
-      "url": "${SKEIN_URL}",
+    "wevex": {
+      "url": "${WEVEX_URL}",
       "type": "http",
       "headers": {
-        "Authorization": "Bearer $SKEIN_TOKEN"
+        "Authorization": "Bearer $WEVEX_TOKEN"
       }
     }
   }
@@ -76,7 +76,7 @@ export const CLIENTS: Client[] = [
     blurb: "OpenAI Codex CLI / ChatGPT Desktop. TOML config — no `transport` key (iter 18.6).",
     install: {
       kind: "command",
-      cmd: "skein connect codex",
+      cmd: "wevex connect codex",
       note: "Appends a `[[mcpServers]]` block to `.codex/config.toml`.",
     },
     config: {
@@ -84,11 +84,11 @@ export const CLIENTS: Client[] = [
       path: ".codex/config.toml",
       lang: "toml",
       content: `[[mcpServers]]
-name = "skein"
-url = "${SKEIN_URL}"
+name = "wevex"
+url = "${WEVEX_URL}"
 
 [mcpServers.headers]
-Authorization = "Bearer $SKEIN_TOKEN"`,
+Authorization = "Bearer $WEVEX_TOKEN"`,
     },
   },
   {
@@ -97,7 +97,7 @@ Authorization = "Bearer $SKEIN_TOKEN"`,
     blurb: "Google's Electron-based agent IDE. Uses `serverUrl` instead of `url`.",
     install: {
       kind: "command",
-      cmd: "skein connect antigravity",
+      cmd: "wevex connect antigravity",
       note: "Writes `~/.gemini/antigravity/mcp_config.json`.",
     },
     config: {
@@ -106,10 +106,10 @@ Authorization = "Bearer $SKEIN_TOKEN"`,
       lang: "json",
       content: `{
   "mcpServers": {
-    "skein": {
-      "serverUrl": "${SKEIN_URL}",
+    "wevex": {
+      "serverUrl": "${WEVEX_URL}",
       "headers": {
-        "Authorization": "Bearer $SKEIN_TOKEN"
+        "Authorization": "Bearer $WEVEX_TOKEN"
       }
     }
   }
@@ -122,7 +122,7 @@ Authorization = "Bearer $SKEIN_TOKEN"`,
     blurb: "Open-source TUI for AI coding agents. Same MCP wire format, different schema.",
     install: {
       kind: "command",
-      cmd: "skein connect opencode",
+      cmd: "wevex connect opencode",
       note: "Writes `~/.config/opencode/config.json`.",
     },
     config: {
@@ -132,10 +132,10 @@ Authorization = "Bearer $SKEIN_TOKEN"`,
       content: `{
   "mcp": {
     "servers": {
-      "skein": {
-        "url": "${SKEIN_URL}",
+      "wevex": {
+        "url": "${WEVEX_URL}",
         "headers": {
-          "Authorization": "Bearer $SKEIN_TOKEN"
+          "Authorization": "Bearer $WEVEX_TOKEN"
         }
       }
     }
@@ -149,7 +149,7 @@ Authorization = "Bearer $SKEIN_TOKEN"`,
     blurb: "Visual Studio Code with GitHub Copilot Chat. Per-workspace MCP.",
     install: {
       kind: "command",
-      cmd: "skein connect vscode",
+      cmd: "wevex connect vscode",
       note: "Writes `.vscode/mcp.json` in the current project.",
     },
     config: {
@@ -158,11 +158,11 @@ Authorization = "Bearer $SKEIN_TOKEN"`,
       lang: "json",
       content: `{
   "mcpServers": {
-    "skein": {
-      "url": "${SKEIN_URL}",
+    "wevex": {
+      "url": "${WEVEX_URL}",
       "type": "http",
       "headers": {
-        "Authorization": "Bearer $SKEIN_TOKEN"
+        "Authorization": "Bearer $WEVEX_TOKEN"
       }
     }
   }

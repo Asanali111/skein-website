@@ -32,7 +32,7 @@ const ENTRIES: Entry[] = [
     kind: "feature",
     title: "browser extension graduates · recall outcome telemetry · v0.2.0",
     body:
-      "The browser extension exits experiment/ — defaults to the prod daemon on 127.0.0.1:8765, ships with a Save-to-Skein button on every assistant turn (claude.ai, chatgpt.com, gemini.google.com), and the popup gets a real query input. On the daemon: every recall now mints a recall_id; remember() and note() accept a from_recall arg, and Skein learns which recalls actually produced useful writes. Doctor surfaces a new \"recall→write rate (24h)\" line. Apache 2.0 LICENSE + NOTICE files land alongside the badge (long overdue).",
+      "The browser extension exits experiment/ — defaults to the prod daemon on 127.0.0.1:8765, ships with a Save-to-Wevex button on every assistant turn (claude.ai, chatgpt.com, gemini.google.com), and the popup gets a real query input. On the daemon: every recall now mints a recall_id; remember() and note() accept a from_recall arg, and Wevex learns which recalls actually produced useful writes. Doctor surfaces a new \"recall→write rate (24h)\" line. Apache 2.0 LICENSE + NOTICE files land alongside the badge (long overdue).",
     highlights: [
       { label: "tests", value: "641 passing" },
       { label: "extension sites", value: "3 (claude / chatgpt / gemini)" },
@@ -51,9 +51,9 @@ const ENTRIES: Entry[] = [
     iter: "iter 33",
     date: "2026-05-22",
     kind: "feature",
-    title: "skein update · PyPI pipeline · CLI deletion phase D",
+    title: "wevex update · PyPI pipeline · CLI deletion phase D",
     body:
-      "`skein update` detects how Skein was installed (pipx / uv / pip / editable) and runs the right upgrade, then restarts the daemon. Non-blocking 24h PyPI check surfaces an \"⬆ Update available\" banner in skein status + doctor. CI auto-publishes to PyPI when pyproject.toml bumps. CLI deletion phase D removes the 21 hidden commands that survived iter 26 — visible surface stays at 10. Browser extension ports to chatgpt.com + gemini.google.com via the iter-32 content_common.js refactor.",
+      "`wevex update` detects how Wevex was installed (pipx / uv / pip / editable) and runs the right upgrade, then restarts the daemon. Non-blocking 24h PyPI check surfaces an \"⬆ Update available\" banner in wevex status + doctor. CI auto-publishes to PyPI when pyproject.toml bumps. CLI deletion phase D removes the 21 hidden commands that survived iter 26 — visible surface stays at 10. Browser extension ports to chatgpt.com + gemini.google.com via the iter-32 content_common.js refactor.",
     highlights: [
       { label: "cli.py", value: "4417 → 2357 lines" },
       { label: "visible commands", value: "10 (unchanged)" },
@@ -65,7 +65,7 @@ const ENTRIES: Entry[] = [
     kind: "feature",
     title: "structural capture · the LLM stops forgetting to write",
     body:
-      "Writing to Skein no longer requires LLM diligence. Git auto-capture watches all branches (not just main) and grades commit-message structure; transcript watcher defaults on with a smart-only filter that picks up \"Iter N shipped\" / \"Decided to X\" lines and auto-promotes them at 0.92. A one-arg note(content) MCP tool replaces the type/tags ceremony for the few writes that still need an LLM. Recall responses gain a [skein:relevance=high|medium|low|none] marker so the browser extension can skip injection when there's nothing useful to send.",
+      "Writing to Wevex no longer requires LLM diligence. Git auto-capture watches all branches (not just main) and grades commit-message structure; transcript watcher defaults on with a smart-only filter that picks up \"Iter N shipped\" / \"Decided to X\" lines and auto-promotes them at 0.92. A one-arg note(content) MCP tool replaces the type/tags ceremony for the few writes that still need an LLM. Recall responses gain a [wevex:relevance=high|medium|low|none] marker so the browser extension can skip injection when there's nothing useful to send.",
   },
   {
     iter: "iter 31",
@@ -85,7 +85,7 @@ const ENTRIES: Entry[] = [
     kind: "feature",
     title: "browser extension v0 · context inside claude.ai",
     body:
-      "Skein lives inside browser LLMs too. New /v1/pair-browser daemon endpoint pairs an MV3 Chromium extension with the local daemon (loopback-only + Origin regex). Content script intercepts Enter on claude.ai, recalls relevant context, prepends a [Skein context — auto-injected] block before submission. Shipped behind experiment/browser-extension; graduates to main in iter 35.",
+      "Wevex lives inside browser LLMs too. New /v1/pair-browser daemon endpoint pairs an MV3 Chromium extension with the local daemon (loopback-only + Origin regex). Content script intercepts Enter on claude.ai, recalls relevant context, prepends a [Wevex context — auto-injected] block before submission. Shipped behind experiment/browser-extension; graduates to main in iter 35.",
   },
   {
     iter: "iter 29",
@@ -93,7 +93,7 @@ const ENTRIES: Entry[] = [
     kind: "feature",
     title: "day-one bundle · fresh user experience",
     body:
-      "Lifespan task warms fastembed at boot (first recall after restart ≈200ms instead of 7–8s). MCP initialize.instructions builds a dynamic greeting from current store state — empty stores get cold-start guidance, populated-but-quiet ones get a skein-connect upsell. Docs watcher picks up AGENTS.md, CLAUDE.md, .cursor/rules, .clinerules, .windsurfrules, and copilot-instructions. Empty-recall reword: instead of \"Found 0 fragments\" we say \"Skein has N fragments in this scope, none semantically related to your query.\"",
+      "Lifespan task warms fastembed at boot (first recall after restart ≈200ms instead of 7–8s). MCP initialize.instructions builds a dynamic greeting from current store state — empty stores get cold-start guidance, populated-but-quiet ones get a wevex-connect upsell. Docs watcher picks up AGENTS.md, CLAUDE.md, .cursor/rules, .clinerules, .windsurfrules, and copilot-instructions. Empty-recall reword: instead of \"Found 0 fragments\" we say \"Wevex has N fragments in this scope, none semantically related to your query.\"",
   },
   {
     iter: "iter 28",
@@ -101,9 +101,9 @@ const ENTRIES: Entry[] = [
     kind: "perf",
     title: "warm-path under 1s · Windows port",
     body:
-      "Vectorised vector_search via batched matmul, added a 128-entry LRU on embed_one, made fastembed ONNX load lazy, and moved scanner sweeps off the foreground onto a daemon-side passive loop. Skein up now skips ingest if the daemon was already healthy. Windows gets a Scheduled Task backend with reboot persistence + RestartOnFailure, matching launchd's KeepAlive on macOS.",
+      "Vectorised vector_search via batched matmul, added a 128-entry LRU on embed_one, made fastembed ONNX load lazy, and moved scanner sweeps off the foreground onto a daemon-side passive loop. Wevex up now skips ingest if the daemon was already healthy. Windows gets a Scheduled Task backend with reboot persistence + RestartOnFailure, matching launchd's KeepAlive on macOS.",
     highlights: [
-      { label: "warm skein up",   value: "4–7s → 800ms" },
+      { label: "warm wevex up",   value: "4–7s → 800ms" },
       { label: "recall warm p50", value: "180ms → 51ms (3.5×)" },
       { label: "project_briefing", value: "100–180ms → 5–45ms" },
     ],
@@ -152,7 +152,7 @@ const ENTRIES: Entry[] = [
     kind: "feature",
     title: "honest recall quality · inbox auto-approve",
     body:
-      "Replaced the opaque RRF score (clustered at 0.016, always) with a quality enum — high / medium / low / none — derived from raw cosine similarity. When the top hit is quality=none, Skein admits it has no high-signal context for that query. New skein inbox auto-approve --min-confidence 0.85 drains 173+ stale extraction candidates.",
+      "Replaced the opaque RRF score (clustered at 0.016, always) with a quality enum — high / medium / low / none — derived from raw cosine similarity. When the top hit is quality=none, Wevex admits it has no high-signal context for that query. New wevex inbox auto-approve --min-confidence 0.85 drains 173+ stale extraction candidates.",
     highlights: [
       { label: "cosine buckets", value: "≥0.65 high · ≥0.50 medium · ≥0.35 low" },
       { label: "drained",         value: "173 inbox items" },
@@ -200,7 +200,7 @@ const ENTRIES: Entry[] = [
     kind: "security",
     title: "rotated bearer token leaked in older codex configs",
     body:
-      "Security sweep caught a stale skein-bearer in pre-rotation .codex/config.toml files. Added _strip_codex_skein_block to rewrite on every connect.",
+      "Security sweep caught a stale wevex-bearer in pre-rotation .codex/config.toml files. Added _strip_codex_wevex_block to rewrite on every connect.",
   },
   {
     iter: "iter 14",
@@ -213,8 +213,8 @@ const ENTRIES: Entry[] = [
 ];
 
 export const metadata = {
-  title: "Changelog — Skein",
-  description: "Per-iteration release notes for Skein, the local-first context bus for coding LLMs.",
+  title: "Changelog — Wevex",
+  description: "Per-iteration release notes for Wevex, the local-first context bus for coding LLMs.",
 };
 
 export default function ChangelogPage() {
@@ -230,7 +230,7 @@ export default function ChangelogPage() {
           Every iteration, every change.
         </h1>
         <p className="text-fg-1 max-w-[36rem] leading-[1.55]">
-          Skein ships per iter — small, atomic, named after the work they encode.
+          Wevex ships per iter — small, atomic, named after the work they encode.
           Most recent first.
         </p>
       </section>
@@ -300,12 +300,12 @@ export default function ChangelogPage() {
         <p className="mt-2 font-mono text-xs text-fg-3">
           Older iters in the GitHub commit log →{" "}
           <a
-            href="https://github.com/Asanali111/skein/commits/main"
+            href="https://github.com/Asanali111/wevex/commits/main"
             target="_blank"
             rel="noopener noreferrer"
             className="text-fg-2 hover:text-primary underline decoration-divider hover:decoration-primary"
           >
-            github.com/Asanali111/skein
+            github.com/Asanali111/wevex
           </a>
         </p>
       </section>

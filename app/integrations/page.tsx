@@ -4,8 +4,8 @@ import SectionStrip from "@/components/SectionStrip";
 import ClientsGallery from "@/components/ClientsGallery";
 
 export const metadata = {
-  title: "Integrations — Skein",
-  description: "Skein gives every coding LLM durable cross-session memory. Configs for Claude Desktop, Cursor, Codex, VS Code, Antigravity, and opencode.",
+  title: "Integrations — Wevex",
+  description: "Wevex gives every coding LLM durable cross-session memory. Configs for Claude Desktop, Cursor, Codex, VS Code, Antigravity, and opencode.",
 };
 
 export default function IntegrationsIndex() {
@@ -20,7 +20,7 @@ export default function IntegrationsIndex() {
           One bus. Every coding LLM.
         </h1>
         <p className="text-fg-1 max-w-[36rem] leading-[1.55]">
-          Skein speaks MCP — every supported client connects with a single config block.
+          Wevex speaks MCP — every supported client connects with a single config block.
           Pick yours below.
         </p>
       </section>

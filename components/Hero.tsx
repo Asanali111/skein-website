@@ -9,7 +9,7 @@ export default function Hero() {
       <PixelLoom />
       <div className="max-w-content mx-auto px-8 sm:px-12 pt-16 pb-14 sm:pt-20 relative">
         <h1 className="wordmark text-[3.5rem] sm:text-[4.5rem] md:text-wordmark text-fg-0 mb-7">
-          skein
+          wevex
         </h1>
 
         <p className="tagline text-xl sm:text-2xl text-fg-0 max-w-[30rem] mb-[0.625rem]">

@@ -1,6 +1,6 @@
-# skein-website
+# wevex-website
 
-Marketing + distribution site for [Skein](https://github.com/Asanali111/skein) — the
+Marketing + distribution site for [Wevex](https://github.com/Asanali111/wevex) — the
 local-first context bus for every coding LLM.
 
 ## Develop
@@ -31,8 +31,8 @@ npx vercel deploy --prod # production
 ```
 
 The site has no env vars, no runtime API routes, no analytics, no third-party
-scripts. All claims are defensible — numbers come from the Skein bench (see
-`/bench` in the live site) and the dogfood doc in the Skein repo.
+scripts. All claims are defensible — numbers come from the Wevex bench (see
+`/bench` in the live site) and the dogfood doc in the Wevex repo.
 
 ## Stack
 
@@ -45,7 +45,7 @@ scripts. All claims are defensible — numbers come from the Skein bench (see
 ## Structure
 
 ```
-skein-website/
+wevex-website/
   app/
     layout.tsx                  # fonts, metadata, FOUC-safe theme init
     globals.css                 # palette CSS vars, typography helpers
@@ -78,7 +78,7 @@ skein-website/
 ## Theme
 
 Default is dark. The toggle in the top-right persists in
-`localStorage['skein-theme']`. An inline `<script>` in `<head>` applies the class
+`localStorage['wevex-theme']`. An inline `<script>` in `<head>` applies the class
 before React hydrates to avoid a flash.
 
 ## Conventions
@@ -88,4 +88,4 @@ before React hydrates to avoid a flash.
 - **Conventional Commits**: `feat:`, `fix:`, `chore:`, `docs:`, `style:`.
 - **Security sweep** before every push — bearer tokens, `Authorization: Bearer …`,
   full hex tokens must never appear in source. Install instructions use
-  `$SKEIN_TOKEN` placeholders.
+  `$WEVEX_TOKEN` placeholders.

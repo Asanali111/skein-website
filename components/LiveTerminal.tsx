@@ -9,9 +9,9 @@ type Frame = {
 
 const FRAMES: Frame[] = [
   {
-    cmd: "skein briefing",
+    cmd: "wevex briefing",
     out: [
-      "scope: project:skein",
+      "scope: project:wevex",
       "fragments: 64 · chunks: 706 · uptime 12m",
       "▸ daemon ready · embedding: fastembed (bge-small) · 384-dim",
       "recent decisions:",
@@ -21,11 +21,11 @@ const FRAMES: Frame[] = [
     ],
   },
   {
-    cmd: "skein recall \"how do we install on a clean machine?\"",
+    cmd: "wevex recall \"how do we install on a clean machine?\"",
     out: [
       "▸ 4 fragments · top score 0.91",
       "[0.91] decision/iter-22  pipx is the default install path",
-      "[0.84] doc/install.md    one-line: `pipx install skn && skein up`",
+      "[0.84] doc/install.md    one-line: `pipx install wevex && wevex up`",
       "[0.72] decision/iter-18  rewrote MCP descriptions as promises",
       "[0.69] readme            zero-config; daemon runs on 127.0.0.1",
     ],
@@ -34,8 +34,8 @@ const FRAMES: Frame[] = [
     cmd: "claude -p \"summarize this project\"",
     out: [
       "▸ Claude Sonnet picks tools:",
-      "  1. mcp__skein__project_briefing",
-      "  2. mcp__skein__recall",
+      "  1. mcp__wevex__project_briefing",
+      "  2. mcp__wevex__recall",
       "▸ done in 64s · 49 input + 533k cache_read + 587 output tok",
       "▸ never read a source file. context came from the bus.",
     ],
@@ -112,7 +112,7 @@ export default function LiveTerminal() {
           <span className="w-2 h-2 rounded-full bg-fg-3" />
           <span className="w-2 h-2 rounded-full bg-spark/70" />
           <span className="ml-3 text-[0.6875rem] uppercase tracking-[0.1em] text-fg-3">
-            ~/skein
+            ~/wevex
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -157,7 +157,7 @@ function Caret() {
   return (
     <span
       aria-hidden
-      className="inline-block w-[0.5em] h-[1em] align-text-bottom bg-fg-0 ml-[1px] skein-caret"
+      className="inline-block w-[0.5em] h-[1em] align-text-bottom bg-fg-0 ml-[1px] wevex-caret"
     />
   );
 }

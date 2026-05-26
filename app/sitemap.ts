@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { CLIENTS } from "@/lib/clients";
 
-const SITE = "https://skein.dev";
+const SITE = "https://wevex.dev";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const today = new Date();

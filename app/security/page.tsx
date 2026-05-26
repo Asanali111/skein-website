@@ -3,8 +3,8 @@ import Footer from "@/components/Footer";
 import SectionStrip from "@/components/SectionStrip";
 
 export const metadata = {
-  title: "Security — Skein",
-  description: "Skein is Apache-2.0, free forever, and local-first. The daemon binds to 127.0.0.1. Your code never leaves the laptop unless you wire it to.",
+  title: "Security — Wevex",
+  description: "Wevex is Apache-2.0, free forever, and local-first. The daemon binds to 127.0.0.1. Your code never leaves the laptop unless you wire it to.",
 };
 
 export default function SecurityPage() {
@@ -20,7 +20,7 @@ export default function SecurityPage() {
           Apache-2.0. Free forever. Local-first by default.
         </h1>
         <p className="text-fg-1 max-w-[36rem] leading-[1.55]">
-          Skein&apos;s threat model is &quot;everything stays on{" "}
+          Wevex&apos;s threat model is &quot;everything stays on{" "}
           <code className="font-mono text-fg-0">127.0.0.1</code> unless you explicitly wire
           in something else.&quot; No paid tier. No telemetry. No vendor lock-in.
         </p>
@@ -55,7 +55,7 @@ export default function SecurityPage() {
             <li>
               <span className="text-spark">✓</span>{" "}
               <span className="text-fg-0">Decisions, observations, recall queries</span> —
-              local SQLite at <code className="font-mono text-fg-0">~/.skein/</code>.
+              local SQLite at <code className="font-mono text-fg-0">~/.wevex/</code>.
             </li>
             <li>
               <span className="text-spark">✓</span>{" "}
@@ -83,11 +83,11 @@ export default function SecurityPage() {
             <li>
               <span className="text-fg-3">○</span>{" "}
               <span className="text-fg-0">Telemetry</span> — off by default, opt-in via{" "}
-              <code className="font-mono text-fg-0">skein config</code>, anonymous when on.
+              <code className="font-mono text-fg-0">wevex config</code>, anonymous when on.
             </li>
           </ul>
           <p className="mt-4 font-mono text-[0.6875rem] text-fg-3 leading-[1.55]">
-            Both are explicit choices the user makes. Skein never auto-detects an API key
+            Both are explicit choices the user makes. Wevex never auto-detects an API key
             and silently starts shipping data.
           </p>
         </div>
@@ -98,14 +98,14 @@ export default function SecurityPage() {
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6 items-start max-w-[52rem]">
           <p className="text-[0.9375rem] text-fg-1 leading-[1.65]">
             Generated on first launch and stored at{" "}
-            <code className="font-mono text-fg-0">~/.config/skein/token</code> with{" "}
+            <code className="font-mono text-fg-0">~/.config/wevex/token</code> with{" "}
             <code className="font-mono text-fg-0">0600</code> permissions. Required for
             every MCP request — even from <code className="font-mono text-fg-0">127.0.0.1</code> —
             so other local processes can&apos;t talk to the daemon without permission.
           </p>
           <pre className="bg-bg-2 border-l-2 border-primary rounded-md font-mono text-[0.75rem] leading-[1.6] text-fg-1 px-4 py-3 overflow-x-auto whitespace-pre">
-{`$ skein rotate-token
-✓ new token written to ~/.config/skein/token
+{`$ wevex rotate-token
+✓ new token written to ~/.config/wevex/token
 ✓ daemon restarted, clients re-wired`}
           </pre>
         </div>
@@ -120,12 +120,12 @@ export default function SecurityPage() {
         </p>
         <p className="mt-4">
           <a
-            href="https://github.com/Asanali111/skein"
+            href="https://github.com/Asanali111/wevex"
             target="_blank"
             rel="noopener noreferrer"
             className="font-mono text-xs text-fg-2 hover:text-primary underline decoration-divider hover:decoration-primary"
           >
-            github.com/Asanali111/skein →
+            github.com/Asanali111/wevex →
           </a>
         </p>
       </section>

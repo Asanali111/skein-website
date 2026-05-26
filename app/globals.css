@@ -91,15 +91,15 @@ body {
 }
 
 /* Terminal caret blink */
-.skein-caret {
-  animation: skein-blink 1.1s steps(1, end) infinite;
+.wevex-caret {
+  animation: wevex-blink 1.1s steps(1, end) infinite;
 }
-@keyframes skein-blink {
+@keyframes wevex-blink {
   0%, 49%   { opacity: 1; }
   50%, 100% { opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .skein-caret { animation: none; }
+  .wevex-caret { animation: none; }
 }
 
 /* Scroll-reveal */
@@ -141,7 +141,7 @@ body {
 
 /* ───────── Hero background dither pattern.
    Tiny diamond-dot tile inspired by jules's `pattern-dot-three`, but in
-   Skein's warm-dark palette so it reads as subtle texture, not branding. */
+   Wevex's warm-dark palette so it reads as subtle texture, not branding. */
 .hero-pattern {
   background-image:
     radial-gradient(circle at 1px 1px, rgba(167, 139, 250, 0.06) 1px, transparent 0);

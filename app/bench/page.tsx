@@ -3,8 +3,8 @@ import Footer from "@/components/Footer";
 import SectionStrip from "@/components/SectionStrip";
 
 export const metadata = {
-  title: "Bench — Skein",
-  description: "Head-to-head recall numbers for Skein vs Mem0 and Letta. Methodology, dataset, and reproducer included.",
+  title: "Bench — Wevex",
+  description: "Head-to-head recall numbers for Wevex vs Mem0 and Letta. Methodology, dataset, and reproducer included.",
 };
 
 type Row = {
@@ -17,7 +17,7 @@ type Row = {
 };
 
 const ROWS: Row[] = [
-  { id: "skein", name: "Skein",  hit5: 0.89, ms: 14,  transport: "local", winner: true },
+  { id: "wevex", name: "Wevex",  hit5: 0.89, ms: 14,  transport: "local", winner: true },
   { id: "mem0",  name: "Mem0",   hit5: 0.72, ms: 340, transport: "cloud" },
   { id: "letta", name: "Letta",  hit5: 0.68, ms: 220, transport: "cloud" },
 ];
@@ -37,7 +37,7 @@ export default function BenchPage() {
           Head-to-head recall numbers.
         </h1>
         <p className="text-fg-1 max-w-[36rem] leading-[1.55]">
-          Same dataset, same query set, three context stores. Local-only on Skein, no
+          Same dataset, same query set, three context stores. Local-only on Wevex, no
           cloud round-trip. Methodology and reproducer below — but first, the numbers.
         </p>
       </section>
@@ -46,12 +46,12 @@ export default function BenchPage() {
       <section className="max-w-content mx-auto px-8 sm:px-12 py-10">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {ROWS.map((row) => {
-            const skein = ROWS.find((r) => r.id === "skein")!;
+            const wevex = ROWS.find((r) => r.id === "wevex")!;
             const hitPct = Math.round(row.hit5 * 100);
             const msWidth = Math.max(4, Math.round((row.ms / MAX_MS) * 100));
             const hitWidth = Math.max(4, Math.round(row.hit5 * 100));
-            const slower = row.id === "skein" ? null : Math.round(row.ms / skein.ms);
-            const lower = row.id === "skein" ? null : ((skein.hit5 - row.hit5) * 100).toFixed(0);
+            const slower = row.id === "wevex" ? null : Math.round(row.ms / wevex.ms);
+            const lower = row.id === "wevex" ? null : ((wevex.hit5 - row.hit5) * 100).toFixed(0);
 
             return (
               <div
@@ -95,7 +95,7 @@ export default function BenchPage() {
                   </div>
                   {lower !== null && (
                     <p className="mt-1 font-mono text-[0.6875rem] text-fg-3">
-                      −{lower} pts vs Skein
+                      −{lower} pts vs Wevex
                     </p>
                   )}
                 </div>
@@ -117,7 +117,7 @@ export default function BenchPage() {
                   </div>
                   {slower !== null && (
                     <p className="mt-1 font-mono text-[0.6875rem] text-fg-3">
-                      {slower}× slower than Skein
+                      {slower}× slower than Wevex
                     </p>
                   )}
                 </div>
@@ -135,7 +135,7 @@ export default function BenchPage() {
       <section className="max-w-content mx-auto px-8 sm:px-12 py-10">
         <p className="max-w-[44rem] text-[0.9375rem] text-fg-1 leading-[1.65]">
           Placeholder until the Mem0 adapter lands. Final dataset: ~6,000 fragments
-          from real Skein-on-Skein dogfood sessions across iters 14–22, with a
+          from real Wevex-on-Wevex dogfood sessions across iters 14–22, with a
           held-out query set of 240 retrievals labeled by the original session author.
           Hit@5 measures whether the gold-standard fragment is in the top 5 returned.
         </p>

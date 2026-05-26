@@ -15,33 +15,33 @@ const TABS: Tab[] = [
   {
     id: "brew",
     label: "brew",
-    command: "brew install asanali111/skein/skein && skein up",
-    note: "Recommended on macOS. Self-contained Python venv; brew handles updates via `brew upgrade skein`.",
+    command: "brew install asanali111/wevex/wevex && wevex up",
+    note: "Recommended on macOS. Self-contained Python venv; brew handles updates via `brew upgrade wevex`.",
     recommended: true,
   },
   {
     id: "pipx",
     label: "pipx",
-    command: "pipx install skn && skein up",
+    command: "pipx install wevex && wevex up",
     note: "Cross-platform — isolated env, auto-PATH, single command works on a clean machine.",
   },
   {
     id: "uv",
     label: "uv",
-    command: "uv tool install skn && skein up",
+    command: "uv tool install wevex && wevex up",
     note: "Fastest install path if you already have uv. Cross-platform.",
   },
   {
     id: "pip",
     label: "pip",
-    command: "pip install --user skn && hash -r && skein up",
+    command: "pip install --user wevex && hash -r && wevex up",
     note: "Plain pip works but needs a PATH refresh — that's what `hash -r` does. Prefer brew or pipx.",
   },
   {
     id: "windows",
     label: "Windows",
-    command: "py -m pip install --user skn; skein up",
-    note: "PowerShell. `skein up` registers a Scheduled Task at user logon so the daemon auto-starts after reboot (no admin needed). State lives in %APPDATA%\\skein\\.",
+    command: "py -m pip install --user wevex; wevex up",
+    note: "PowerShell. `wevex up` registers a Scheduled Task at user logon so the daemon auto-starts after reboot (no admin needed). State lives in %APPDATA%\\wevex\\.",
   },
 ];
 
@@ -130,13 +130,6 @@ export default function InstallTabs({ className = "" }: Props) {
         </p>
       )}
 
-      {/* Naming note — always visible, explains the skn-vs-skein split */}
-      <p className="font-sans text-[0.75rem] text-fg-3 mt-3 leading-relaxed">
-        Package is <code className="font-mono text-fg-2">skn</code>; CLI command is{" "}
-        <code className="font-mono text-fg-2">skein</code>. Install with{" "}
-        <code className="font-mono text-fg-2">skn</code> because the
-        more-obvious name is taken by an unrelated Apache project on PyPI.
-      </p>
     </div>
   );
 }
