@@ -25,7 +25,7 @@ const FRAMES: Frame[] = [
     out: [
       "▸ 4 fragments · top score 0.91",
       "[0.91] decision/iter-22  pipx is the default install path",
-      "[0.84] doc/install.md    one-line: `pipx install wevex && wevex up`",
+      "[0.84] doc/install.md    one-line: `pipx install wevex --python python3.12 && wevex up`",
       "[0.72] decision/iter-18  rewrote MCP descriptions as promises",
       "[0.69] readme            zero-config; daemon runs on 127.0.0.1",
     ],
