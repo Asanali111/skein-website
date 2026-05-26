@@ -22,8 +22,8 @@ const TABS: Tab[] = [
   {
     id: "pipx",
     label: "pipx",
-    command: "pipx install wevex && wevex up",
-    note: "Cross-platform — isolated env, auto-PATH, single command works on a clean machine.",
+    command: "pipx install wevex --python python3.12 && wevex up",
+    note: "Cross-platform — isolated env, auto-PATH. The `--python python3.12` pin is needed until onnxruntime ships Python 3.14 wheels; drop the flag once it does.",
   },
   {
     id: "uv",
