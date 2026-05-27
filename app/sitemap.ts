@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { CLIENTS } from "@/lib/clients";
 
-const SITE = "https://wevex.dev";
+const SITE = "https://wevex.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const today = new Date();

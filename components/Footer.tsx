@@ -8,7 +8,7 @@ export default function Footer() {
           <Link href="/" className="wordmark-small text-lg text-fg-0">
             wevex
           </Link>
-          <span>MIT · local-first · made for builders</span>
+          <span>Apache 2.0 · local-first · made for builders</span>
           <div className="flex gap-7">
             <a
               href="https://github.com/Asanali111/wevex"

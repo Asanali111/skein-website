@@ -27,19 +27,19 @@ export const metadata: Metadata = {
   title: "Wevex — one memory across every coding LLM",
   description:
     "Local-first context bus for Claude Desktop, Cursor, Codex, VS Code, Antigravity, opencode, and more. No vendor lock-in. No cloud round-trip. The daemon runs on 127.0.0.1.",
-  metadataBase: new URL("https://wevex.dev"),
+  metadataBase: new URL("https://wevex.vercel.app"),
   openGraph: {
     title: "Wevex",
     description:
-      "Local-first context bus for Claude Desktop, Cursor, Codex, VS Code, Antigravity, opencode, and more. MIT, runs on 127.0.0.1.",
+      "Local-first context bus for Claude Desktop, Cursor, Codex, VS Code, Antigravity, opencode, and more. Apache 2.0, runs on 127.0.0.1.",
     type: "website",
-    url: "https://wevex.dev",
+    url: "https://wevex.vercel.app",
   },
   twitter: {
     card: "summary_large_image",
     title: "Wevex — one memory across every coding LLM",
     description:
-      "Local-first context bus for every coding LLM. MIT, runs on 127.0.0.1.",
+      "Local-first context bus for every coding LLM. Apache 2.0, runs on 127.0.0.1.",
   },
   icons: {
     icon: "/favicon.svg",
