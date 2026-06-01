@@ -1,5 +1,6 @@
 export type ClientId =
   | "claude-code"
+  | "claude-desktop"
   | "cursor"
   | "vscode"
   | "windsurf"
@@ -144,10 +145,10 @@ export const CLIENTS: Client[] = [
       "source": "custom",
       "command": "npx",
       "args": [
-        "-y", "mcp-remote", "${WEVEX_URL}",
-        "--header", "Authorization:Bearer $WEVEX_TOKEN"
+        "-y", "mcp-remote", "${WEVEX_URL}", "--allow-http",
+        "--header", "Authorization:\${WEVEX_AUTH_HEADER}"
       ],
-      "env": {}
+      "env": { "WEVEX_AUTH_HEADER": "Bearer $WEVEX_TOKEN" }
     }
   }
 }`,
@@ -155,6 +156,30 @@ export const CLIENTS: Client[] = [
   },
 
   // ---- Full roster (/integrations only) ----
+  {
+    id: "claude-desktop",
+    name: "Claude Desktop",
+    blurb: "Anthropic's desktop app. Bridged to the local daemon via npx mcp-remote.",
+    scope: "global",
+    install: up("Writes `claude_desktop_config.json`. Claude Desktop's remote connectors route through Anthropic's cloud and can't reach 127.0.0.1, so Wevex uses the local mcp-remote stdio bridge (needs Node/npx)."),
+    config: {
+      kind: "config",
+      path: "~/Library/Application Support/Claude/claude_desktop_config.json",
+      lang: "json",
+      content: `{
+  "mcpServers": {
+    "wevex": {
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote", "${WEVEX_URL}", "--allow-http",
+        "--header", "Authorization:\${WEVEX_AUTH_HEADER}"
+      ],
+      "env": { "WEVEX_AUTH_HEADER": "Bearer $WEVEX_TOKEN" }
+    }
+  }
+}`,
+    },
+  },
   {
     id: "cline",
     name: "Cline",
