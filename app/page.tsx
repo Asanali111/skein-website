@@ -18,7 +18,7 @@ export default function Page() {
       </Reveal>
       <SectionStrip label="works with" />
       <Reveal delay={60}>
-        <ClientsGallery />
+        <ClientsGallery featured />
       </Reveal>
       <SectionStrip label="dogfood · may 2026" />
       <Reveal delay={60}>

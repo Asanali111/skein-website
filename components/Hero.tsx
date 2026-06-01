@@ -16,8 +16,8 @@ export default function Hero() {
           One memory across every coding LLM.
         </p>
         <p className="text-[0.9375rem] leading-[1.55] text-fg-1 max-w-[30rem] mb-8">
-          Local-first context bus for Claude Desktop, Cursor, Codex, VS Code, Antigravity,
-          opencode, and more. No vendor lock-in. No cloud round-trip. The daemon runs on
+          Local-first context bus for Claude Code, Cursor, VS Code, Windsurf, Zed, Cline,
+          and 14 more. No vendor lock-in. No cloud round-trip. The daemon runs on
           127.0.0.1.
         </p>
 
@@ -27,7 +27,7 @@ export default function Hero() {
 
         <div className="flex flex-wrap gap-3 mb-7">
           <SecondaryCta href="#what-it-does">see it work →</SecondaryCta>
-          <SecondaryCta href="#integrations">7 supported clients</SecondaryCta>
+          <SecondaryCta href="/integrations">20 supported clients</SecondaryCta>
         </div>
 
         <div className="flex flex-wrap items-center gap-5 pt-6 border-t border-divider font-mono text-xs text-fg-1">

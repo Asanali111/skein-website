@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CLIENTS } from "@/lib/clients";
+import { CLIENTS, FEATURED_CLIENTS } from "@/lib/clients";
 
-export default function ClientsGallery() {
+export default function ClientsGallery({ featured = false }: { featured?: boolean }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -16,11 +16,14 @@ export default function ClientsGallery() {
     } catch {}
   };
 
+  const list = featured ? FEATURED_CLIENTS : CLIENTS;
+  const remaining = CLIENTS.length - FEATURED_CLIENTS.length;
+
   return (
     <section id="integrations" className="bg-bg-0">
       <div className="max-w-content mx-auto px-8 sm:px-12 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {CLIENTS.map((c) => {
+          {list.map((c) => {
             const open = openId === c.id;
             const cmd = c.install.kind === "command" ? c.install.cmd : "";
             return (
@@ -100,6 +103,31 @@ export default function ClientsGallery() {
               </div>
             );
           })}
+
+          {featured && (
+            <Link
+              href="/integrations"
+              className="group relative flex flex-col justify-between bg-bg-1 border border-divider rounded-lg p-5 transition-all duration-200 hover:border-primary hover:-translate-y-0.5"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <span className="font-mono text-[0.6875rem] tracking-[0.1em] uppercase text-fg-2">
+                  +{remaining} more
+                </span>
+                <span className="font-mono text-xs text-fg-3 group-hover:text-primary transition-colors">
+                  →
+                </span>
+              </div>
+              <div>
+                <div className="card-title text-lg text-fg-0 mb-2">
+                  All {CLIENTS.length} integrations
+                </div>
+                <p className="text-sm leading-[1.5] text-fg-1">
+                  Cline, Roo Code, JetBrains Junie, Amazon Q, Warp, Goose, and
+                  more — every client Wevex auto-connects.
+                </p>
+              </div>
+            </Link>
+          )}
         </div>
       </div>
     </section>
